@@ -14,8 +14,8 @@ This, by default, produces 30 data points for all 8 sensors at random. The outpu
 ```
 
 ## Files
-tracker01.key - ECDSA private key used by the simulator
+`tracker01.key` - ECDSA private key used by the simulator
 
-simulator.sh - The simulator
+`simulator.sh` - The simulator
 
-pebble.dat - The data points produced which are in JSON format
+`pebble.dat` - The data points produced which are in JSON format
