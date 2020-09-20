@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# version
+VER="v1.02"
+
 # set default mode
 default_mode="random"
 
@@ -37,12 +40,14 @@ STEP=10
 
 CountPkg=30
 
+genFile="$(pwd)/pebble.dat"
+
 getTime()
 {
 	current=`date "+%Y-%m-%d %H:%M:%S"`
 	timeStamp=`date -d "$current" +%s`
 	# ms
-	currentTimeStamp=$((timeStamp*1000+`date "+%N"`/1000000))
+	currentTimeStamp=$(( timeStamp*1000+`date "+%N"`/1000000 ))
 	echo $currentTimeStamp
 }
 
@@ -149,15 +154,15 @@ SensorMenu()
 		echo ""
 		echo " Sensor             Mode              Default Data"
 		echo ""
-		echo " 1. SNR             $snr_mode         $SNR"
-		echo " 2. VBAT            $vbat_mode        $VBAT"
-		echo " 3. GPS             $gps_mode         ${GPS[0]},${GPS[1]}"
-		echo " 4. ENV             $env_mode         ${ENV[0]},${ENV[1]},${ENV[2]}"
-		echo " 5. LIGHT           $light_mode       $LIGHT"
-		echo " 6. gyroscope       $gyr_mode         ${gyr[0]},${gyr[1]},${gyr[2]}"
-		echo " 7. accelerometer   $accel_mode       ${accel[0]},${accel[1]},${accel[2]}"
-    echo " 8. temperature     $temp_mode        $temp"
-    echo "---------------------------------------------------------------------------"
+		echo " 1. SNR             $snr_mode            $SNR"
+		echo " 2. VBAT            $vbat_mode            $VBAT"
+		echo " 3. GPS             $gps_mode            ${GPS[0]},${GPS[1]}"
+		echo " 4. ENV             $env_mode            ${ENV[0]},${ENV[1]},${ENV[2]}"
+		echo " 5. LIGHT           $light_mode            $LIGHT"
+		echo " 6. gyroscope       $gyr_mode            ${gyr[0]},${gyr[1]},${gyr[2]}"
+		echo " 7. accelerometer   $accel_mode            ${accel[0]},${accel[1]},${accel[2]}"
+                echo " 8. temperature     $temp_mode            $temp"
+                echo "---------------------------------------------------------------------------"
 		echo " 9. Main menu"
 		read -n 1 key
 		if [ "$key" == "9" ];then
@@ -187,7 +192,7 @@ RandomFloat()
 
 NextData()
 {
-     # SNR
+    # SNR
      if [ $snr_mode == "random" ];then
          SNR=$( RandomInt 0 255 )
      elif [ $snr_mode == "linear" ];then
@@ -260,12 +265,12 @@ NextData()
      fi
      # gyroscope
       if [ $gyr_mode == "random" ];then
-         gyr[0]=$( RandomInt 0 15 )
-         gyr[1]=$( RandomInt 0 15 )
-         gyr[2]=$( RandomInt 0 15 )
+         gyr[0]=$( RandomInt 1 15 )
+         gyr[1]=$( RandomInt 1 15 )
+         gyr[2]=$( RandomInt 1 15 )
          flg=$( RandomInt 1 3 )
-         let flg=flg-1
-         gyr[$flg]=$(echo 0-${gyr[$flg]}|bc -l)
+         let flg=flg-1     
+         gyr[${flg}]=$(echo 0-${gyr[${flg}]}|bc -l)
       elif [ $gyr_mode == "linear" ];then
          gyr[0]=$(${gyr[0]} + 1|bc -l)
          gyr[1]=$(${gyr[1]} + 1|bc -l)
@@ -280,7 +285,6 @@ NextData()
              gyr[2]=-2
          fi
       fi
-
      # accelerometer
       if [ $accel_mode == "random" ];then
          accel[0]=$( RandomInt 0 5000 )
@@ -316,8 +320,7 @@ NextData()
 }
 
 GenerateFile()
-{
-    genFile="$(pwd)/pebble.dat"
+{    
     if [ -a $genFile ];then
     	rm $genFile
     fi
@@ -325,7 +328,7 @@ GenerateFile()
     for((integer = 1; integer <= $CountPkg; integer++))
     do
 	NextData
-       objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"
+       objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"
        ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |xxd -ps)
        ecc_str=$(echo $ecc_str|sed  's/ //g')
        sign_r=$(echo ${ecc_str:8:71})
@@ -346,7 +349,7 @@ NumberofPackages()
 main()
 {
     timestp=$( getTime )
-    echo $timestp
+    #echo $timestp
     while true
     do
         printf '\033\143'
@@ -357,27 +360,40 @@ main()
         echo ""
         echo " 2.  Set Number of Data Points: $CountPkg"
         echo ""
-        echo " 3.  Run - Produce Data Points"
+        echo " 3.  Upload to AWS MQTT"
         echo ""
-        echo " 4.  Exit"
+        echo " 4.  Run - Produce Data Points"
+        echo ""
+        echo " 5.  Exit"
         echo ""
         echo "Select:"
         read -n 1 key
-        if [ $key == "1" ];then
+        if [[ $key == "1" ]];then
             SensorMenu
-        elif [ $key == "2" ] ;then
-					NumberofPackages
-        elif [ $key == "3" ];then
-					echo ""
-					GenerateFile
-					echo ""
-					echo "$(pwd)/genFile  generated!"
-					echo ""
-					break
+        elif [[ $key == "2" ]] ;then
+	    NumberofPackages
+        elif [[ $key == "3" ]] ;then
+            echo ""
+	    echo  "Will be done later"
+            break
+        elif [[ $key == "4" ]];then
+            echo ""
+            GenerateFile
+            echo ""
+            echo "${genFile}  generated!"
+            echo ""
+            break
         else
             break
         fi
     done
 }
 
+if [ "$1" == "-v" ];then
+	echo  "$VER" 
+        exit
+fi
+
+
 main
+
