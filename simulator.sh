@@ -332,7 +332,7 @@ GenerateFile()
        ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |xxd -ps)
        ecc_str=$(echo $ecc_str|sed  's/ //g')
        sign_r=$(echo ${ecc_str:8:71})
-       sign_s=$(echo ${ecc_str:78:-1})
+       sign_s=$(echo ${ecc_str:78:141})
        echo "{$objMessage,\"signature_r\":\"$sign_r\",\"signature_s\":\"$sign_s\"}" >> $genFile
     done
 
