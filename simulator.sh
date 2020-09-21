@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # version
-VER="v1.02"
+VER="v1.03"
 
 # set default mode
 default_mode="random"
@@ -328,11 +328,10 @@ GenerateFile()
     for((integer = 1; integer <= $CountPkg; integer++))
     do
 	NextData
-       objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"
-       ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |xxd -ps)
-       ecc_str=$(echo $ecc_str|sed  's/ //g')
-       sign_r=$(echo ${ecc_str:8:71})
-       sign_s=$(echo ${ecc_str:78:141})
+       objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"       
+       ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"') 
+       sign_r=$(echo ${ecc_str:8:64})
+       sign_s=$(echo ${ecc_str:76:64})
        echo "{$objMessage,\"signature_r\":\"$sign_r\",\"signature_s\":\"$sign_s\"}" >> $genFile
     done
 
