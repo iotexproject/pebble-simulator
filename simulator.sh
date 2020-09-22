@@ -105,23 +105,23 @@ SetMode()
      if [ $key == "1" ];then
      case $1 in
      1)
-       echo "Please input SNR data end with enter( eg. 0 ) :"
+       echo "Please input a value for SNR ending with enter (e.g., 0):"
        read str
        SNR=$str
 	;;
      2)
-       echo "Please input VBAT data end with enter( eg. 4.145454406738281 ) :"
+       echo "Please input a value for VBAT ending with enter (e.g., 4.145454406738281):"
        read str
        VBAT=$str
 	;;
      3)
-       echo "Please input GPS data end with enter( eg. 60.500525 13.886719 ) :"
+       echo "Please input a value for GPS ending with enter (e.g., 60.500525 13.886719):"
        read str
        GPS[0]=$(echo $str|awk '{print  $1 }')
        GPS[1]=$(echo $str|awk '{print  $2 }')
 	;;
      4)
-       echo "Please input env data end with enter(gas_resistance temperature pressure humidity)( eg. 5312190 31.838768005371094 1006.739990234375 51.03300094604492 ):"
+       echo "Please input (gas_resistance temperature pressure humidity) for env sensor ending with enter ( e.g., 5312190 31.838768005371094 1006.739990234375 51.03300094604492):"
        read str
        env_mode[0]=$(echo $str|awk '{print  $1 }')
        env_mode[1]=$(echo $str|awk '{print  $2 }')
@@ -129,7 +129,7 @@ SetMode()
        env_mode[3]=$(echo $str|awk '{print  $4 }')
 	;;
      5)
-       echo "Please input light data end with enter( eg. 53.85771942138672 ) :"
+       echo "Please input a value for light sensor ending with enter (e.g., 53.85771942138672):"
        read str
        LIGHT=$str
 	;;
@@ -141,14 +141,14 @@ SetMode()
        gyr_mode[2]=$(echo $str|awk '{print  $3 }')
 	;;
      7)
-       echo "Please input accelerometer data end with enter( eg. -38 166 8270 ) :"
+       echo "Please input a value for accelerometer ending with enter (e.g., -38 166 8270):"
        read str
        accel_mode[0]=$(echo $str|awk '{print  $1 }')
        accel_mode[1]=$(echo $str|awk '{print  $2 }')
        accel_mode[2]=$(echo $str|awk '{print  $3 }')
 	;;
       8)
-       echo "Please input temperature data end with enter( eg. 31.83876 ) :"
+       echo "Please input a value for temperature ending with enter (e.g., 31.83876):"
        read str
        temp=$str
 	;;
@@ -172,10 +172,10 @@ SensorMenu()
 		echo " 3. GPS             $gps_mode            ${GPS[0]},${GPS[1]}"
 		echo " 4. ENV             $env_mode            ${ENV[0]},${ENV[1]},${ENV[2]}"
 		echo " 5. LIGHT           $light_mode            $LIGHT"
-		echo " 6. gyroscope       $gyr_mode            ${gyr[0]},${gyr[1]},${gyr[2]}"
-		echo " 7. accelerometer   $accel_mode            ${accel[0]},${accel[1]},${accel[2]}"
-                echo " 8. temperature     $temp_mode            $temp"               
-                echo "---------------------------------------------------------------------------"
+		echo " 6. Gyroscope       $gyr_mode            ${gyr[0]},${gyr[1]},${gyr[2]}"
+		echo " 7. Accelerometer   $accel_mode            ${accel[0]},${accel[1]},${accel[2]}"
+    echo " 8. Temperature     $temp_mode            $temp"
+    echo "---------------------------------------------------------------------------"
 		echo " 0. Main menu"
 		read -n 1 key
 		if [ "$key" == "0" ];then
@@ -282,7 +282,7 @@ NextData()
          gyr[1]=$( RandomInt 1 15 )
          gyr[2]=$( RandomInt 1 15 )
          flg=$( RandomInt 1 3 )
-         let flg=flg-1     
+         let flg=flg-1
          gyr[${flg}]=$(echo 0-${gyr[${flg}]}|bc -l)
       elif [ $gyr_mode == "linear" ];then
          gyr[0]=$(${gyr[0]} + 1|bc -l)
@@ -333,7 +333,7 @@ NextData()
 }
 
 GenerateFile()
-{    
+{
     if [ -a $genFile ];then
     	rm $genFile
     fi
@@ -341,15 +341,15 @@ GenerateFile()
     for((integer = 1; integer <= $CountPkg; integer++))
     do
 	NextData
-       objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"       
-       ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"') 
+       objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"
+       ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"')
        sign_r=$(echo ${ecc_str:8:64})
        sign_s=$(echo ${ecc_str:76:64})
        echo "{$objMessage,\"signature_r\":\"$sign_r\",\"signature_s\":\"$sign_s\"}" >> $genFile
     done
 
 }
-# AWS IOT 
+# AWS IOT
 AWSIOTUpload()
 {
     echo "Publish Topic : $default_pubtopic".
@@ -357,14 +357,14 @@ AWSIOTUpload()
     while true
     do
 	NextData
-        objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"       
-        ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"') 
+        objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"
+        ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"')
         sign_r=$(echo ${ecc_str:8:64})
         sign_s=$(echo ${ecc_str:76:64})
         mqtt_data="{$objMessage,\"signature_r\":\"$sign_r\",\"signature_s\":\"$sign_s\"}"
 
-        timeout 10 mosquitto_pub -t  $default_pubtopic -m $mqtt_data -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/public.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT              
-        
+        timeout 10 mosquitto_pub -t  $default_pubtopic -m $mqtt_data -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/public.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+
         sleep $MQTT_UPLOAD_INTERVAL
     done
 }
@@ -389,11 +389,11 @@ main()
         echo ""
         echo " 1.  Config Sensors"
         echo ""
-        echo " 2.  Set Number of Data Points: $CountPkg"
+        echo " 2.  Set Number of Data Points (Current $CountPkg)"
         echo ""
-        echo " 3.  Upload to AWS MQTT"
+        echo " 3.  Generate Simulated Data"
         echo ""
-        echo " 4.  Run - Produce Data Points"
+        echo " 4.  Publish to AWS MQTT"
         echo ""
         echo " 5.  Exit"
         echo ""
@@ -402,17 +402,17 @@ main()
         if [[ $key == "1" ]];then
             SensorMenu
         elif [[ $key == "2" ]] ;then
-	    NumberofPackages
+            NumberofPackages
         elif [[ $key == "3" ]] ;then
-            echo ""
-	    AWSIOTUpload
-            break
-        elif [[ $key == "4" ]];then
             echo ""
             GenerateFile
             echo ""
-            echo "${genFile}  generated!"
+            echo "${genFile} generated!"
             echo ""
+            break
+        elif [[ $key == "4" ]];then
+            echo ""
+            AWSIOTUpload
             break
         else
             echo ""
@@ -422,10 +422,9 @@ main()
 }
 
 if [ "$1" == "-v" ];then
-	echo  "$VER" 
+	echo  "$VER"
         exit
 fi
 
 
 main
-
