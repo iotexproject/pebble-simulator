@@ -1,11 +1,21 @@
 #!/bin/bash
 
 # version
-VER="v1.03"
+VER="v1.04"
 
-# set default mode
+# default mode
 default_mode="random"
 
+# default mqtt publish topic
+default_pubtopic="top/simulator001"
+mqttMode="publish"
+
+# config  mqtt broker host
+MQTT_BROKER_HOST="a38flh8hj8xizs-ats.iot.us-east-2.amazonaws.com"
+MQTT_BROKER_PORT=8883
+
+# mqtt upload interval, seconds
+MQTT_UPLOAD_INTERVAL=3
 
 SNR=0
 snr_mode=$default_mode
@@ -41,6 +51,9 @@ STEP=10
 CountPkg=30
 
 genFile="$(pwd)/pebble.dat"
+
+
+trap "echo 'exit...';exit" 2
 
 getTime()
 {
@@ -161,11 +174,11 @@ SensorMenu()
 		echo " 5. LIGHT           $light_mode            $LIGHT"
 		echo " 6. gyroscope       $gyr_mode            ${gyr[0]},${gyr[1]},${gyr[2]}"
 		echo " 7. accelerometer   $accel_mode            ${accel[0]},${accel[1]},${accel[2]}"
-                echo " 8. temperature     $temp_mode            $temp"
+                echo " 8. temperature     $temp_mode            $temp"               
                 echo "---------------------------------------------------------------------------"
-		echo " 9. Main menu"
+		echo " 0. Main menu"
 		read -n 1 key
-		if [ "$key" == "9" ];then
+		if [ "$key" == "0" ];then
 			break
 		else
 			SetMode $key
@@ -336,6 +349,25 @@ GenerateFile()
     done
 
 }
+# AWS IOT 
+AWSIOTUpload()
+{
+    echo "Publish Topic : $default_pubtopic".
+    echo "Press CTR+C to terminate"
+    while true
+    do
+	NextData
+        objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"       
+        ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"') 
+        sign_r=$(echo ${ecc_str:8:64})
+        sign_s=$(echo ${ecc_str:76:64})
+        mqtt_data="{$objMessage,\"signature_r\":\"$sign_r\",\"signature_s\":\"$sign_s\"}"
+
+        timeout 10 mosquitto_pub -t  $default_pubtopic -m $mqtt_data -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/public.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT              
+        
+        sleep $MQTT_UPLOAD_INTERVAL
+    done
+}
 
 NumberofPackages()
 {
@@ -373,7 +405,7 @@ main()
 	    NumberofPackages
         elif [[ $key == "3" ]] ;then
             echo ""
-	    echo  "Will be done later"
+	    AWSIOTUpload
             break
         elif [[ $key == "4" ]];then
             echo ""
@@ -383,6 +415,7 @@ main()
             echo ""
             break
         else
+            echo ""
             break
         fi
     done
