@@ -4,6 +4,7 @@ The simulator for producing pebble data.
 ## Dependencies
 - linux bash
 - openssl
+- mosquitto-clients
 
 ## Run
 `./simulator.sh`
