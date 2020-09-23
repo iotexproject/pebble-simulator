@@ -20,3 +20,12 @@ This, by default, produces 30 data points for all 8 sensors at random. The outpu
 `simulator.sh` - The simulator
 
 `pebble.dat` - The data points produced which are in JSON format
+
+`public.pem` - MQTT client  public certification
+
+`AmazonRootCA1.pem` - AWS IOT CA certification
+
+`private.pem` - MQTT client  private key
+
+
+

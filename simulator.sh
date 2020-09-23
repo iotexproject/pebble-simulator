@@ -352,21 +352,32 @@ GenerateFile()
 # AWS IOT
 AWSIOTUpload()
 {
-    echo "Publish Topic : $default_pubtopic".
+    printf '\033\143'
+    echo ""
+    if [ ! -f "$genFile" ];then
+        echo "Pebble data not found !"
+        echo "Please select item 3 first in the main menu"
+        echo "Press any key to return to the main menu"
+        echo ""
+        read -n 1 key
+        return  1
+    fi
+    echo "Publish Topic : $default_pubtopic"
     echo "Press CTR+C to terminate"
-    while true
-    do
-	NextData
-        objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"
-        ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"')
-        sign_r=$(echo ${ecc_str:8:64})
-        sign_s=$(echo ${ecc_str:76:64})
-        mqtt_data="{$objMessage,\"signature_r\":\"$sign_r\",\"signature_s\":\"$sign_s\"}"
+    while read oneline
+    do        
 
-        timeout 10 mosquitto_pub -t  $default_pubtopic -m $mqtt_data -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/public.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+        timeout 10 mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/public.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
 
-        sleep $MQTT_UPLOAD_INTERVAL
-    done
+        sleep  $MQTT_UPLOAD_INTERVAL
+                
+
+    done < $genFile
+
+    echo  "Upload complete"
+    echo  ""
+
+    return 0
 }
 
 NumberofPackages()
@@ -409,11 +420,15 @@ main()
             echo ""
             echo "${genFile} generated!"
             echo ""
-            break
+            echo "Press any key to continue"
+            read -n 1 key
+
         elif [[ $key == "4" ]];then
             echo ""
             AWSIOTUpload
-            break
+            if [ $? == "0" ] ;then 
+              break
+            fi
         else
             echo ""
             break
