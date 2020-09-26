@@ -11,7 +11,7 @@ default_pubtopic="top/simulator001"
 mqttMode="publish"
 
 # config  mqtt broker host
-MQTT_BROKER_HOST="a38flh8hj8xizs-ats.iot.us-east-2.amazonaws.com"
+MQTT_BROKER_HOST="a11homvea4zo8t-ats.iot.us-east-2.amazonaws.com"
 MQTT_BROKER_PORT=8883
 
 # mqtt upload interval, seconds
@@ -365,10 +365,8 @@ AWSIOTUpload()
     echo "Publish Topic : $default_pubtopic"
     echo "Press CTR+C to terminate"
     while read oneline
-    do        
-
-        timeout 10 mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/public.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
-
+    do              
+        mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT     
         sleep  $MQTT_UPLOAD_INTERVAL
                 
 
