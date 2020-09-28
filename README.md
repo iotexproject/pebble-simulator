@@ -1,5 +1,5 @@
 # pebble-simulator
-The simulator for producing pebble data.
+The simulator for producing pebble data, write it to a local file and publish to AWS MQTT.
 
 ## Dependencies
 - linux bash
@@ -15,17 +15,14 @@ This, by default, produces 30 data points for all 8 sensors at random. The outpu
 ```
 
 ## Files
-`tracker01.key` - ECDSA private key used by the simulator
-
 `simulator.sh` - The simulator
 
-`pebble.dat` - The data points produced which are in JSON format
+`pebble.dat` - The data points produced according to the spec
 
-`public.pem` - MQTT client  public certification
+`tracker01.key` - ECDSA key used by the simulator to sign data
 
-`AmazonRootCA1.pem` - AWS IOT CA certification
+`cert.pem` - the cert for communicating via MQTT, which can be downloaded while creating `AWS IoT things`
 
-`private.pem` - MQTT client  private key
+`private.pem` - the private key for communicating via MQTT, which can be downloaded while creating `AWS IoT things`
 
-
-
+`AmazonRootCA1.pem` - AWS's root CA cert
