@@ -2,7 +2,7 @@
 
 
 # config  mqtt broker host
-MQTT_BROKER_HOST="a11homvea4zo8t-ats.iot.us-east-2.amazonaws.com"
+MQTT_BROKER_HOST="a11homvea4zo8t-ats.iot.us-east-1.amazonaws.com"
 MQTT_BROKER_PORT=8883
 
 
@@ -106,15 +106,15 @@ pubData()
     echo ""
     echo "Json package:"
     echo "{"
-    echo "     \"bulk_upload\":$devWorkmode,
-     \"data_channel\":$hexToDecimal,
-     \"upload_period\":$devUpPeriod,
-     \"bulk_upload_sampling_cnt\":$devSampleN,
-     \"bulk_upload_sampling_freq\":$devUpInterval"
+    echo "     \"bulk_upload\":\"$devWorkmode\",
+     \"data_channel\":\"$hexToDecimal\",
+     \"upload_period\":\"$devUpPeriod\",
+     \"bulk_upload_sampling_cnt\":\"$devSampleN\",
+     \"bulk_upload_sampling_freq\":\"$devUpInterval\""
     echo "}"
 
-    objMessage="{\"bulk_upload\":$devWorkmode,\"data_channel\":$hexToDecimal,\"upload_period\":$devUpPeriod,\"bulk_upload_sampling_cnt\":$devSampleN,\"bulk_upload_sampling_freq\":$devUpInterval}"
-    mosquitto_pub -t  topic/config/$defDeviceID -m $objMessage -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+    objMessage="{\"bulk_upload\":\"$devWorkmode\",\"data_channel\":\"$hexToDecimal\",\"upload_period\":\"$devUpPeriod\",\"bulk_upload_sampling_cnt\":\"$devSampleN\",\"bulk_upload_sampling_freq\":\"$devUpInterval\"}"
+    mosquitto_pub -t  "topic/config/$defDeviceID" -m $objMessage -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
 
     echo "Publish complete"
     echo "Press any key to return"
