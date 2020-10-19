@@ -46,6 +46,8 @@ timestp="3334970018"
 
 RANDOM_MAX_INT=32768
 
+wkMode="mqtts"
+
 STEP=10
 
 CountPkg=30
@@ -366,7 +368,11 @@ AWSIOTUpload()
     echo "Press CTR+C to terminate"
     while read oneline
     do
-        mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+        if [ $wkMode == "mqtts" ]; then
+             mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+        else
+             mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST  --insecure -p $MQTT_BROKER_PORT
+        fi
         sleep  $MQTT_UPLOAD_INTERVAL
 
 
@@ -434,9 +440,8 @@ main()
     done
 }
 
-if [ "$1" == "-v" ];then
-	echo  "$VER"
-        exit
+if [ "$1" == "--dev" ];then
+          wkMode=mqtt
 fi
 
 
