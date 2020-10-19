@@ -13,6 +13,10 @@ This, by default, produces 30 data points for all 8 sensors at random. The outpu
 ```
 {"message":{"SNR":187,"VBAT":4.36002,"gas_resistance":1173,"temperature":16.21609,"pressure":515.32678,"humidity":31.51630,"temperature":76.22284,"gyroscope":[6,-1214,8],"accelerometer":[937,1214,1491],"timestamp":"85000"},"signature_r":"00fb7f17b6f524a684ac392eb47761bd1f994fd0a1f92d227a263e3ea981d2007e02204","signature_s":""}
 ```
+Use mqtt with no tls
+
+`./simulator.sh --dev`
+
 
 ## Files
 `simulator.sh` - The simulator
