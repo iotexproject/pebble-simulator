@@ -10,9 +10,13 @@ default_mode="random"
 default_pubtopic="device/pebble777/data"
 mqttMode="publish"
 
-# config  mqtt broker host
+# config  mqtt broker host (tls)
 MQTT_BROKER_HOST="a11homvea4zo8t-ats.iot.us-east-1.amazonaws.com"
 MQTT_BROKER_PORT=8883
+
+# config  mqtt broker host (no tls)
+MQTT_BROKER_HOST_TEST="trypebble.io"
+MQTT_BROKER_PORT_TEST=1884
 
 # mqtt upload interval, seconds
 MQTT_UPLOAD_INTERVAL=3
@@ -46,7 +50,6 @@ timestp="3334970018"
 
 RANDOM_MAX_INT=32768
 
-wkMode="mqtts"
 
 STEP=10
 
@@ -364,15 +367,11 @@ AWSIOTUpload()
         read -n 1 key
         return  1
     fi
-    echo "Publishing to Topic [$default_pubtopic] @ [$MQTT_BROKER_HOST]"
+    echo "Publishing to Topic [$default_pubtopic] @ [$MQTT_BROKER_HOST:$MQTT_BROKER_PORT]"
     echo "Press CTR+C to terminate"
     while read oneline
     do
-        if [ $wkMode == "mqtts" ]; then
-             mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
-        else
-             mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST  --insecure -p $MQTT_BROKER_PORT
-        fi
+        mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
         sleep  $MQTT_UPLOAD_INTERVAL
 
 
@@ -382,6 +381,33 @@ AWSIOTUpload()
     echo  ""
 
     return 0
+}
+TrypebbleUpload()
+{
+    printf '\033\143'
+    echo ""
+    if [ ! -f "$genFile" ];then
+        echo "Pebble data not found !"
+        echo "Please select item 3 first in the main menu"
+        echo "Press any key to return to the main menu"
+        echo ""
+        read -n 1 key
+        return  1
+    fi
+    echo "Publishing to Topic [$default_pubtopic] @ [$MQTT_BROKER_HOST_TEST:$MQTT_BROKER_PORT_TEST]"
+    echo "Press CTR+C to terminate"
+    while read oneline
+    do
+        mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST_TEST  --insecure -p $MQTT_BROKER_PORT_TEST
+        sleep  $MQTT_UPLOAD_INTERVAL
+
+
+    done < $genFile
+
+    echo  "Succesfully published!"
+    echo  ""
+
+    return 0	
 }
 
 NumberofPackages()
@@ -410,7 +436,9 @@ main()
         echo ""
         echo " 4.  Publish to AWS MQTT"
         echo ""
-        echo " 5.  Exit"
+        echo " 5.  Publish to trypebble.io"
+        echo ""
+        echo " 6.  Exit"
         echo ""
         echo "Select:"
         read -n 1 key
@@ -433,16 +461,17 @@ main()
             if [ $? == "0" ] ;then
               break
             fi
+        elif [[ $key == "5" ]];then
+            TrypebbleUpload
+            if [ $? == "0" ] ;then
+              break
+            fi
         else
             echo ""
             break
         fi
     done
 }
-
-if [ "$1" == "--dev" ];then
-          wkMode=mqtt
-fi
 
 
 main
