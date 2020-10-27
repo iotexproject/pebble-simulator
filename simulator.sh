@@ -7,7 +7,7 @@ VER="v1.04"
 default_mode="random"
 
 # default mqtt publish topic
-default_pubtopic="device/pebble777/data"
+default_pubtopic="device/nrf-1234567890/data"
 mqttMode="publish"
 
 # config  mqtt broker host (tls)
