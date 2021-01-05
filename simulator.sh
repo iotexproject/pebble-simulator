@@ -1,5 +1,6 @@
 #!/bin/bash
 
+. ./pebble-firmware-blockchain.sh
 # version
 VER="v1.04"
 
@@ -7,7 +8,8 @@ VER="v1.04"
 default_mode="random"
 
 # default mqtt publish topic
-default_pubtopic="device/nrf-1234567890/data"
+device_id="352656103380963"
+default_pubtopic="device/nrf-${device_id}/data"
 mqttMode="publish"
 
 # config  mqtt broker host (tls)
@@ -20,6 +22,12 @@ MQTT_BROKER_PORT_TEST=1884
 
 # mqtt upload interval, seconds
 MQTT_UPLOAD_INTERVAL=3
+
+# http request interval
+HTTP_REQ_INTERVAL=3
+
+#pebble_blockchain contract 
+pebble_contract="io1a8qeke954ncyddc0ek3vlq5xpz54f0l7lyx8wg"
 
 SNR=0
 snr_mode=$default_mode
@@ -401,7 +409,6 @@ TrypebbleUpload()
         mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST_TEST  --insecure -p $MQTT_BROKER_PORT_TEST
         sleep  $MQTT_UPLOAD_INTERVAL
 
-
     done < $genFile
 
     echo  "Succesfully published!"
@@ -417,9 +424,56 @@ NumberofPackages()
 	read key
         CountPkg=$key
 }
+PebbleBlockchain()
+{  
+ 	printf '\033\143'
+	echo "Pebble-firmware-blockchain program process" 
+    echo "Pebble contract : $pebble_contract"
+    echo "Pebble id : $device_id"  
+    echo "Press CTR+C to terminate"
+    endpoint="null"
+    while true
+    do
+        response=$( GetResponse "$device_id"  "$pebble_contract" )
+        #echo "response:$response"
+        duration=$(echo $response | cut -d';' -f1 | cut -d':' -f2)
+        #echo "duration:$duration"
+        enc_endpint=$(echo $response | cut -d';' -f2 | cut -d':' -f2)       
+        echo "duaration : $duration"        
+        #echo "enc_endpint:$enc_endpint"
+        if [ $duration -gt 0 ];then 
+            if [ "$endpoint" = "null" ];then          
+                endpoint=$( RSADecrypto $enc_endpint )
+            fi
+            echo "endpoint : $endpoint"
+            if [ "$endpoint" = "http://pebble.io/1234" ];then
+                endpoint="http://trypebble.io:1884"          
+            fi  
+            mqtt_host=$( echo $endpoint | cut -d':' -f2 | cut -d'/' -f3)
+            mqtt_port=$( echo $endpoint | cut -d':' -f3)  
+            if [ $endpoint ] && [ $mqtt_host ] && [ $mqtt_port ];then          
+                objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"
+                ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"')
+                sign_r=$(echo ${ecc_str:8:64})
+                sign_s=$(echo ${ecc_str:76:64}) 
+                oneline="{$objMessage,\"signature_r\":\"$sign_r\",\"signature_s\":\"$sign_s\"}"      
+                echo "$default_pubtopic, $mqtt_host, $mqtt_port"     
+                mosquitto_pub -t  $default_pubtopic -m $oneline -h $mqtt_host  --insecure -p $mqtt_port
+            else
+                echo "Can not get mqtt host" 
+            fi               
+            sleep  $MQTT_UPLOAD_INTERVAL
+        else
+            sleep $HTTP_REQ_INTERVAL
+            endpoint="null"
+        fi
+    done
+    return 0
+}
 
 main()
 {
+    RSAInit
     timestp=$( getTime )
     #echo $timestp
     while true
@@ -438,7 +492,9 @@ main()
         echo ""
         echo " 5.  Publish to trypebble.io"
         echo ""
-        echo " 6.  Exit"
+        echo " 6.  Pebble blockchain"
+        echo ""
+        echo " 7.  Exit"
         echo ""
         echo "Select:"
         read -n 1 key
@@ -466,6 +522,11 @@ main()
             if [ $? == "0" ] ;then
               break
             fi
+        elif [[ $key == "6" ]];then
+            PebbleBlockchain
+            if [ $? == "0" ] ;then
+              break
+            fi            
         else
             echo ""
             break
