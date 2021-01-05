@@ -9,13 +9,30 @@ The simulator for producing pebble data, write it to a local file and publish to
 ## Run
 `./simulator.sh`
 
+```
+========>> PEBBLE SIMULATOR <<========
+
+
+ 1.  Config Sensors
+
+ 2.  Set Number of Data Points (Current 30)
+
+ 3.  Generate Simulated Data
+
+ 4.  Publish to AWS MQTT
+
+ 5.  Publish to trypebble.io
+
+ 6.  Pebble blockchain
+
+ 7.  Exit
+
+Select:
+```
 This, by default, produces 30 data points for all 8 sensors at random. The output is written to pebble.dat which looks like below.
 ```
 {"message":{"SNR":187,"VBAT":4.36002,"gas_resistance":1173,"temperature":16.21609,"pressure":515.32678,"humidity":31.51630,"temperature":76.22284,"gyroscope":[6,-1214,8],"accelerometer":[937,1214,1491],"timestamp":"85000"},"signature_r":"00fb7f17b6f524a684ac392eb47761bd1f994fd0a1f92d227a263e3ea981d2007e02204","signature_s":""}
 ```
-Use mqtt with no tls
-
-`./simulator.sh --dev`
 
 
 ## Files
