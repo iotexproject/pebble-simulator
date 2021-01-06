@@ -5,6 +5,7 @@ The simulator for producing pebble data, write it to a local file and publish to
 - linux bash
 - openssl 1.0.2g or later
 - mosquitto-clients
+- libcurl
 
 ## Run
 `./simulator.sh`
