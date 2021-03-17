@@ -212,7 +212,7 @@ RandomFloat()
   local scale=$2
   local max_int=$3
   local random=$( echo "${RANDOM}/${RANDOM_MAX_INT}*(${max_int}^${precision}) + ${RANDOM}/${RANDOM_MAX_INT} " | bc -l )
-  printf "%.${scale}f" ${random}
+  LC_NUMERIC="en_US.UTF-8" printf "%.${scale}f" ${random}
 
 }
 
