@@ -351,14 +351,27 @@ GenerateFile()
     	rm $genFile
     fi
 
+    # Extract pub key  exponent
+    PUBKEY=$(grep -v -- ----- rsa_public_key.pem | tr -d '\n')
+    EXPLINE=$(echo $PUBKEY | base64 -d | openssl asn1parse -inform DER -i -strparse 19| head -4 | tail -1)
+    IFS=':'
+    read -a strarr <<< "$EXPLINE"
+    rsa_exp=${strarr[3]}
+    # Extract pub key  modulus
+    MODLINE=$(echo $PUBKEY | base64 -d | openssl asn1parse -inform DER -i -strparse 19| tail -2 | head -1)
+    read -a strarr <<< "$MODLINE"
+    rsa_mod=${strarr[3]}
+    # reset spit char
+    IFS=''
+
     for((integer = 1; integer <= $CountPkg; integer++))
     do
 	NextData
-       objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"
+       objMessage="\"message\":{\"RSA_N\":\"$rsa_mod\",\"RSA_E\":\"$rsa_exp\",\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"
        ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"')
        sign_r=$(echo ${ecc_str:8:64})
        sign_s=$(echo ${ecc_str:76:64})
-       echo "{$objMessage,\"signature_r\":\"$sign_r\",\"signature_s\":\"$sign_s\"}" >> $genFile
+       echo "{$objMessage,\"signature\":{\"r\":\"$sign_r\",\"s\":\"$sign_s\"}}" >> $genFile
     done
 
 }
