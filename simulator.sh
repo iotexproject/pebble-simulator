@@ -9,11 +9,12 @@ default_mode="random"
 
 # default mqtt publish topic
 device_id="352656103380963"
-default_pubtopic="device/nrf-${device_id}/data"
+default_pubtopic="device/${device_id}/data"
 mqttMode="publish"
 
 # config  mqtt broker host (tls)
-MQTT_BROKER_HOST="a11homvea4zo8t-ats.iot.us-east-1.amazonaws.com"
+#MQTT_BROKER_HOST="a11homvea4zo8t-ats.iot.us-east-1.amazonaws.com"
+MQTT_BROKER_HOST="a11homvea4zo8t-ats.iot.ap-east-1.amazonaws.com"
 MQTT_BROKER_PORT=8883
 
 # config  mqtt broker host (no tls)
@@ -354,11 +355,11 @@ GenerateFile()
     for((integer = 1; integer <= $CountPkg; integer++))
     do
 	NextData
-       objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gas_resistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"
+       objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gasResistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"
        ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"')
        sign_r=$(echo ${ecc_str:8:64})
        sign_s=$(echo ${ecc_str:76:64})
-       echo "{$objMessage,\"signature_r\":\"$sign_r\",\"signature_s\":\"$sign_s\"}" >> $genFile
+       echo "{$objMessage,\"signature\":{\"r\":\"$sign_r\",\"s\":\"$sign_s\"}}" >> $genFile
     done
 
 }
