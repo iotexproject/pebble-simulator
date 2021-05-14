@@ -496,10 +496,16 @@ PebbleRegistration()
     return 1
 }
 
+upload_config()
+{
+    confStr="{\"message\":{\"bulkUpload\": \"0\",\"dataChannel\": \"8183\",\"uploadPeriod\": \"10\",\"bulkPploadSamplingCnt\": \"60\",\"bulkUploadAamplingFreq\": \"10\",\"beep\":\"1000\",\"firmware\": \"pebbleGo V1.0.0\"}}"
+    mosquitto_pub -t  "device/${device_id}/config" -m $confStr -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT 
+}
+
 main()
 {
     RSAInit
-    timestp=$( getTime )
+    timestp=$( getTime )    
     #echo $timestp
     while true
     do
@@ -567,4 +573,8 @@ main()
 }
 
 
+upload_config
+./ota_update.sh &
+./heartbeat.sh &
 main
+(killall  ota_update.sh heartbeat.sh mosquitto_sub mosquitto_pub sleep >/dev/null 2>&1  ) &
