@@ -67,7 +67,12 @@ CountPkg=30
 genFile="$(pwd)/pebble.dat"
 
 
-trap "echo 'exit...';exit" 2
+trap 'ExitClrAll;exit' 2
+
+function ExitClrAll () {
+    process_mosquot=$(ps -ef | grep  mosquitto_sub | grep -v grep | tr -s ' ' | cut -d ' ' -f2)
+    kill ${process_ota} ${process_heartbeat} ${process_mosquot}
+}
 
 getTime()
 {
@@ -380,10 +385,13 @@ AWSIOTUpload()
     echo "Press CTR+C to terminate"
     while read oneline
     do
-        mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
-        sleep  $MQTT_UPLOAD_INTERVAL
-
-
+        grp_msg=$(echo $oneline | awk -F'},' '{print $1"}"}' |awk -F':{' '{print $1":", "{"$2}')        
+        read head_msg raw_msg <<< $grp_msg
+        tail_msg=$(echo $oneline | awk -F'},' '{print ","$2}')
+        hexStr=$(echo $raw_msg|hexdump -e '16/1 "%02X"'|cut -d' ' -f1)
+        objMsg=${head_msg}\"${hexStr}\"${tail_msg}
+        mosquitto_pub -t  $default_pubtopic -m $objMsg -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+        sleep  $MQTT_UPLOAD_INTERVAL         
     done < $genFile
 
     echo  "Succesfully published!"
@@ -422,9 +430,21 @@ NumberofPackages()
 {
 	printf '\033\143'
 	echo "How many packages you want to generate :"
-	read key
+	read key    
         CountPkg=$key
 }
+SetPebbleId()
+{ 	
+    while true
+    do
+        printf '\033\143'
+	    read -p "Inout 15 digits or enter to use the default value : " key
+        [ ${#key} != 15 ] && [ ${#key} != 0 ] && echo "" && echo "The input is incorrect, please re-enter" && sleep 2 && continue
+        [ ${#key} != 0  ] && device_id=$key 
+        break
+    done 
+}
+
 PebbleBlockchain()
 {  
  	printf '\033\143'
@@ -515,7 +535,7 @@ main()
         echo ""
         echo " 1.  Config Sensors"
         echo ""
-        echo " 2.  Set Number of Data Points (Current $CountPkg)"
+        echo " 2.  Set Number of Data Points (Current: ${CountPkg})"
         echo ""
         echo " 3.  Generate Simulated Data"
         echo ""
@@ -527,7 +547,9 @@ main()
         echo ""
         echo " 7.  Device Bingding and Registration"
         echo ""
-        echo " 8.  Exit"
+        echo " 8.  Set Pebble ID (Current: ${device_id})"
+        echo ""        
+        echo " 9.  Exit"
         echo ""
         echo "Select:"
         read -n 1 key
@@ -564,7 +586,9 @@ main()
             PebbleRegistration
             if [ $? == "0" ] ;then
               break
-            fi                      
+            fi   
+        elif [[ $key == "8" ]];then
+            SetPebbleId                                
         else
             echo ""
             break
@@ -575,6 +599,9 @@ main()
 
 upload_config
 ./ota_update.sh &
+process_ota=$!
 ./heartbeat.sh &
+process_heartbeat=$!
 main
-(killall  ota_update.sh heartbeat.sh mosquitto_sub mosquitto_pub sleep >/dev/null 2>&1  ) &
+# clear backends
+ExitClrAll
