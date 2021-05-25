@@ -56,6 +56,7 @@ temp_mode=$default_mode
 
 timestp="3334970018"
 #timestp_mode="fixed"
+randomHex="58b66cbaed0c63c3"
 
 RANDOM_MAX_INT=32768
 
@@ -340,15 +341,16 @@ NextData()
          fi
       fi
       #temperature
-      if [ $light_mode == "random" ];then
+      if [ $temp_mode == "random" ];then
          temp=$( RandomFloat 1 5 80 )
-     elif [ $light_mode == "linear" ];then
+     elif [ $temp_mode == "linear" ];then
          temp=$(echo $temp+2.10001|bc -l)
          if [ $temp > 80 ];then
              temp=10.14545
          fi
      fi
       let timestp=timestp+5000
+      randomHex=$(openssl rand -hex 8)
 }
 
 GenerateFile()
@@ -360,7 +362,7 @@ GenerateFile()
     for((integer = 1; integer <= $CountPkg; integer++))
     do
 	NextData
-       objMessage="\"message\":{\"SNR\":$SNR,\"VBAT\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gasResistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"temperature\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\"}"
+       objMessage="\"message\":{\"snr\":$SNR,\"vbat\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gasResistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"light\":$LIGHT,\"temperature2\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\",\"random\":\"$randomHex\"}"
        ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"')
        sign_r=$(echo ${ecc_str:8:64})
        sign_s=$(echo ${ecc_str:76:64})
@@ -385,12 +387,13 @@ AWSIOTUpload()
     echo "Press CTR+C to terminate"
     while read oneline
     do
-        grp_msg=$(echo $oneline | awk -F'},' '{print $1"}"}' |awk -F':{' '{print $1":", "{"$2}')        
-        read head_msg raw_msg <<< $grp_msg
-        tail_msg=$(echo $oneline | awk -F'},' '{print ","$2}')
-        hexStr=$(echo $raw_msg|hexdump -e '16/1 "%02X"'|cut -d' ' -f1)
-        objMsg=${head_msg}\"${hexStr}\"${tail_msg}
-        mosquitto_pub -t  $default_pubtopic -m $objMsg -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+        #grp_msg=$(echo $oneline | awk -F'},' '{print $1"}"}' |awk -F':{' '{print $1":", "{"$2}')        
+        #read head_msg raw_msg <<< $grp_msg
+        #tail_msg=$(echo $oneline | awk -F'},' '{print ","$2}')
+        #hexStr=$(echo $raw_msg|hexdump -e '16/1 "%02X"'|cut -d' ' -f1)
+        #objMsg=${head_msg}\"${hexStr}\"${tail_msg}
+        #mosquitto_pub -t  $default_pubtopic -m $objMsg -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+        mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
         sleep  $MQTT_UPLOAD_INTERVAL         
     done < $genFile
 
