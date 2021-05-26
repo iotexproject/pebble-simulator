@@ -72,7 +72,8 @@ trap 'ExitClrAll;exit' 2
 
 function ExitClrAll () {
     process_mosquot=$(ps -ef | grep  mosquitto_sub | grep -v grep | tr -s ' ' | cut -d ' ' -f2)
-    kill ${process_ota} ${process_heartbeat} ${process_mosquot}
+    process_mosquotpub=$(ps -ef | grep  mosquitto_pub | grep -v grep | tr -s ' ' | cut -d ' ' -f2)
+    kill ${process_ota} ${process_heartbeat} ${process_mosquot} ${process_mosquotpub}
 }
 
 getTime()
@@ -373,6 +374,7 @@ GenerateFile()
 # AWS IOT
 AWSIOTUpload()
 {
+    default_pubtopic="device/${device_id}/data"
     printf '\033\143'
     echo ""
     if [ ! -f "$genFile" ];then
@@ -498,7 +500,8 @@ PebbleRegistration()
 { 
     printf '\033\143'
     echo "Pebble id : $device_id"
-    echo "Please register on the page"  
+    echo ""
+    echo "Add a device on the following page:  https://web-pebble-frontend.vercel.app" 
     echo ""
     regRq=$(mosquitto_sub  -t  "device/${device_id}/action/add" -h $MQTT_BROKER_HOST -C 1 --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT)
     echo "Receive the user wallet address, start signing and sending "
