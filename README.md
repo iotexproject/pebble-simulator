@@ -41,25 +41,34 @@ This, by default, produces 30 data points for all 8 sensors at random. The outpu
 ```
 ###  Add a device to the portal
 1. Run simulator and select '8' in the main menu to configure the device ID
+
 ![](./doc/image/setDevID.png)
 
-2. Select '7' in the main menu to put the simulator into a wait-and-add state. Add devices on the protal page (https://web-pebble-frontend.vercel.app/) at the same time   
+2. Select '7' in the main menu to put the simulator into a wait-and-add state. Add devices on the protal page (https://web-pebble-frontend.vercel.app/) at the same time 
+  
 ![](./doc/image/addDev.png)
+
 Add a device to the portal:
+
 ![](./doc/image/addDevPortal.png)
 
 3. The device was added successfully
+
 ![](./doc/image/addDevOk.png)
+
 The device has been added to portal
+
 ![](./doc/image/addDevPortalOk.png)
 
 ### Upload data to portal
 1. Generate simulated data 
    
-   Select '3' in the main menu to generate simulated data
+Select '3' in the main menu to generate simulated data
+
 ![](./doc/image/genData.png)
 
 2. Select '4' to upload data in the main menu
+
 ![](./doc/image/upload.png)
 
 3. You can view the data in portal
