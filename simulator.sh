@@ -71,8 +71,8 @@ genFile="$(pwd)/pebble.dat"
 trap 'ExitClrAll;exit' 2
 
 function ExitClrAll () {
-    process_mosquot=$(ps -ef | grep  mosquitto_sub | grep -v grep | tr -s ' ' | cut -d ' ' -f2)
-    process_mosquotpub=$(ps -ef | grep  mosquitto_pub | grep -v grep | tr -s ' ' | cut -d ' ' -f2)
+    process_mosquot=$(ps -ef | grep  mosquitto_sub | grep -v grep | awk '{print $2}')
+    process_mosquotpub=$(ps -ef | grep  mosquitto_pub | grep -v grep | awk '{print $2}')
     kill ${process_ota} ${process_heartbeat} ${process_mosquot} ${process_mosquotpub} >/dev/null 2>&1
 }
 
