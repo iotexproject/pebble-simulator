@@ -6,7 +6,15 @@ The simulator for producing pebble data, write it to a local file and publish to
 - openssl 1.0.2g or later
 - mosquitto-clients
 - libcurl
+### In ubuntu
+`apt-get install  openssl`
 
+`apt-get install  mosquitto-clients`
+
+### In MacOS
+`brew install openssl`
+
+`brew install mosquitto`
 ## Run
 `./simulator.sh`
 
