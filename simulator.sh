@@ -73,7 +73,7 @@ trap 'ExitClrAll;exit' 2
 function ExitClrAll () {
     process_mosquot=$(ps -ef | grep  mosquitto_sub | grep -v grep | tr -s ' ' | cut -d ' ' -f2)
     process_mosquotpub=$(ps -ef | grep  mosquitto_pub | grep -v grep | tr -s ' ' | cut -d ' ' -f2)
-    kill ${process_ota} ${process_heartbeat} ${process_mosquot} ${process_mosquotpub}
+    kill ${process_ota} ${process_heartbeat} ${process_mosquot} ${process_mosquotpub} >/dev/null 2>&1
 }
 
 getTime()
@@ -512,7 +512,7 @@ PebbleRegistration()
     sign_r=$(echo ${ecc_str:8:64})
     sign_s=$(echo ${ecc_str:76:64})   
     msg="{$objMessage,\"signature\":{\"r\":\"$sign_r\",\"s\":\"$sign_s\"}}"
-    mosquitto_pub -t  "device/${device_id}/action/confirm" -m $msg -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT 
+    mosquitto_pub -t  "device/${device_id}/action/confirm" -m "$msg" -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT 
     echo ""
     echo  "Succesfully published!"
     echo ""
@@ -524,8 +524,8 @@ PebbleRegistration()
 
 upload_config()
 {
-    confStr="{\"message\":{\"bulkUpload\": \"0\",\"dataChannel\": \"8183\",\"uploadPeriod\": \"10\",\"bulkPploadSamplingCnt\": \"60\",\"bulkUploadAamplingFreq\": \"10\",\"beep\":\"1000\",\"firmware\": \"pebbleGo V1.0.0\"}}"
-    mosquitto_pub -t  "device/${device_id}/config" -m $confStr -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT 
+    confStr="{\"message\":{\"bulkUpload\":\"0\",\"dataChannel\":\"8183\",\"uploadPeriod\":\"10\",\"bulkPploadSamplingCnt\":\"60\",\"bulkUploadAamplingFreq\":\"10\",\"beep\":\"1000\",\"firmware\":\"pebbleGo V1.0.0\"}}"
+    mosquitto_pub -t  "device/${device_id}/config" -m "${confStr}" -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT 
 }
 
 main()
@@ -609,5 +609,5 @@ process_ota=$!
 ./heartbeat.sh &
 process_heartbeat=$!
 main
-# clear backends
+#clear backends
 ExitClrAll
