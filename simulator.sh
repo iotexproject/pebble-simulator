@@ -527,9 +527,35 @@ upload_config()
     confStr="{\"message\":{\"bulkUpload\":\"0\",\"dataChannel\":\"8183\",\"uploadPeriod\":\"10\",\"bulkPploadSamplingCnt\":\"60\",\"bulkUploadAamplingFreq\":\"10\",\"beep\":\"1000\",\"firmware\":\"pebbleGo V1.0.0\"}}"
     mosquitto_pub -t  "device/${device_id}/config" -m "${confStr}" -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT 
 }
+isInstalled()
+{
+    toolpath=$(which $1)
+    [ -n "${toolpath}" ] && return 1
+    return 0
+}
+
+envCheck()
+{
+    isInstalled  mosquitto_pub
+    ret=$?
+    if [ $ret -eq 0 ]; then
+        echo ""
+        echo "Mosquitto is not installed, please install the mosquitto package"
+        echo ""
+        exit
+    fi
+    isInstalled  openssl
+    ret=$?
+    if [ $ret -eq 0 ]; then
+        echo ""
+        echo "Opensslis not installed, please install the openssl package"
+        echo ""
+        exit
+    fi    
+}
 
 main()
-{
+{    
     RSAInit
     timestp=$( getTime )    
     #echo $timestp
@@ -602,7 +628,7 @@ main()
     done
 }
 
-
+envCheck
 upload_config
 ./ota_update.sh &
 process_ota=$!
