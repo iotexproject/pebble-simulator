@@ -80,6 +80,8 @@ Select '3' in the main menu to generate simulated data
 ![](./doc/image/upload.png)
 
 3. You can view the data in portal
+   
+![](./doc/image/dataPortal.png)
 
 It has been successfully tested on Ubuntu 16.04.6 and MacOS 10.14
 
