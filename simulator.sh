@@ -443,7 +443,7 @@ SetPebbleId()
     while true
     do
         printf '\033\143'
-	    read -p "Inout 15 digits or enter to use the default value : " key
+	    read -p "Input 15 digits or enter to use the default value : " key
         [ ${#key} != 15 ] && [ ${#key} != 0 ] && echo "" && echo "The input is incorrect, please re-enter" && sleep 2 && continue
         [ ${#key} != 0  ] && device_id=$key 
         break
@@ -548,7 +548,7 @@ envCheck()
     ret=$?
     if [ $ret -eq 0 ]; then
         echo ""
-        echo "Opensslis not installed, please install the openssl package"
+        echo "Openssl is not installed, please install the openssl package"
         echo ""
         exit
     fi    
