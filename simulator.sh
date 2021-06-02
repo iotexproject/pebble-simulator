@@ -508,7 +508,8 @@ PebbleRegistration()
     wallet=$(echo $regRq | awk -F , '{print $4}'| awk -F \" '{print $4}')
     public="30a8f41d35ba3cfe39cc1effab498683796e53191abf1226c3637c801556bdf87ffe428c9ad533d802b8487b319ffc2435a100536ac5fba87052354f52ba1713"
     objMessage="\"message\":{\"walletAddress\":\"$wallet\",\"imei\":\"${device_id}\",\"publicKey\":\"${public}\"}"
-    ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"')
+    sign_msg="{$objMessage}"
+    ecc_str=$(echo $sign_msg |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"')
     sign_r=$(echo ${ecc_str:8:64})
     sign_s=$(echo ${ecc_str:76:64})   
     msg="{$objMessage,\"signature\":{\"r\":\"$sign_r\",\"s\":\"$sign_s\"}}"
