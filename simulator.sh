@@ -364,7 +364,8 @@ GenerateFile()
     do
 	NextData
        objMessage="\"message\":{\"snr\":$SNR,\"vbat\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gasResistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"light\":$LIGHT,\"temperature2\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\",\"random\":\"$randomHex\"}"
-       ecc_str=$(echo $objMessage |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"')
+       sign_msg="{$objMessage}"
+       ecc_str=$(echo $sign_msg |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"')
        sign_r=$(echo ${ecc_str:8:64})
        sign_s=$(echo ${ecc_str:76:64})
        echo "{$objMessage,\"signature\":{\"r\":\"$sign_r\",\"s\":\"$sign_s\"}}" >> $genFile
