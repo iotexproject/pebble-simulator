@@ -32,17 +32,15 @@ It has been successfully tested on Ubuntu 16.04.6 and MacOS 10.14
 
  3.  Generate Simulated Data
 
- 4.  Publish to AWS MQTT
+ 4.  Publish to IoTT Portal
 
- 5.  Publish to trypebble.io
+ 5.  Publish to IoTeX Blockchain
 
- 6.  Pebble blockchain
+ 6.  Device Registration
 
- 7.  Device Bingding and Registration
+ 7.  Set Device IMEI (Current: 352656103380963)
 
- 8.  Set Pebble ID (Current: 352656103380963)
-
- 9.  Exit
+ 8.  Exit
 
 Select:
 
@@ -53,9 +51,9 @@ By default, the scirpt produces 30 data points for all 8 sensors at random. The 
 ```
 
 ###  Register Device
-1. Run simulator and select '8' in the menu to configure the device ID
+1. Run simulator and select '7' in the menu to configure the device ID
 
-2. Select '7' in the menu to put the simulator into a waiting state. 
+2. Select '6' in the menu to put the simulator into a waiting state. 
 
 3. Add devices on the protal page (https://portal.iott.network/) at the same time 
 

@@ -502,7 +502,7 @@ PebbleRegistration()
     printf '\033\143'
     echo "Pebble id : $device_id"
     echo ""
-    echo "Add a device on the following page:  https://web-pebble-frontend.vercel.app" 
+    echo "Add a device on the following page:  https://portal.iott.network/" 
     echo ""
     regRq=$(mosquitto_sub  -t  "device/${device_id}/action/add" -h $MQTT_BROKER_HOST -C 1 --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT)
     echo "Receive the user wallet address, start signing and sending "
@@ -573,17 +573,17 @@ main()
         echo ""
         echo " 3.  Generate Simulated Data"
         echo ""
-        echo " 4.  Publish to AWS MQTT"
+        echo " 4.  Publish to IoTT Portal"
+        #echo ""
+        #echo " 5.  Publish to Trypebble.io"
         echo ""
-        echo " 5.  Publish to trypebble.io"
+        echo " 5.  Publish to IoTeX Blockchain"
         echo ""
-        echo " 6.  Pebble Blockchain"
+        echo " 6.  Device Registration"
         echo ""
-        echo " 7.  Device Registration"
-        echo ""
-        echo " 8.  Set Pebble ID (Current: ${device_id})"
+        echo " 7.  Set Device IMEI (Current: ${device_id})"
         echo ""        
-        echo " 9.  Exit"
+        echo " 8.  Exit"
         echo ""
         echo "Select:"
         read -n 1 key
@@ -606,22 +606,22 @@ main()
             if [ $? == "0" ] ;then
               break
             fi
+        #elif [[ $key == "5" ]];then
+        #    TrypebbleUpload
+        #    if [ $? == "0" ] ;then
+        #      break
+        #    fi
         elif [[ $key == "5" ]];then
-            TrypebbleUpload
-            if [ $? == "0" ] ;then
-              break
-            fi
-        elif [[ $key == "6" ]];then
             PebbleBlockchain
             if [ $? == "0" ] ;then
               break
             fi  
-        elif [[ $key == "7" ]];then
+        elif [[ $key == "6" ]];then
             PebbleRegistration
             if [ $? == "0" ] ;then
               break
             fi   
-        elif [[ $key == "8" ]];then
+        elif [[ $key == "7" ]];then
             SetPebbleId                                
         else
             echo ""
