@@ -456,7 +456,7 @@ PebbleBlockchain()
  	printf '\033\143'
 	echo "Pebble-firmware-blockchain program process" 
     echo "Pebble contract : $pebble_contract"
-    echo "Pebble id : $device_id"  
+    echo "Device IMEI : $device_id"  
     echo "Press CTR+C to terminate"
     endpoint="null"
     while true
