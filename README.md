@@ -1,11 +1,15 @@
 # pebble-simulator
-The simulator for producing pebble data, write it to a local file and publish to AWS MQTT.
+The the script for simulating pebble to produce signed data, write it to a local file and publish to AWS MQTT. 
+
+It has been successfully tested on Ubuntu 16.04.6 and MacOS 10.14
+
 
 ## Dependencies
 - linux bash
 - openssl 1.0.2g or later
 - mosquitto-clients
 - libcurl
+
 ### Ubuntu
 `apt-get install  openssl`
 
@@ -43,24 +47,21 @@ The simulator for producing pebble data, write it to a local file and publish to
 Select:
 
 ```
-This, by default, produces 30 data points for all 8 sensors at random. The output is written to pebble.dat which looks like below.
+By default, the scirpt produces 30 data points for all 8 sensors at random. The output is written to pebble.dat which looks like below.
 ```
 {"message":{"SNR":187,"VBAT":4.36002,"gas_resistance":1173,"temperature":16.21609,"pressure":515.32678,"humidity":31.51630,"temperature":76.22284,"gyroscope":[6,-1214,8],"accelerometer":[937,1214,1491],"timestamp":"85000"},"signaturer":{"r":"00fb7f17b6f524a684ac392eb47761bd1f994fd0a1f92d227a263e3ea981d2007e02204","s":""}}
 ```
-###  Add a device to the portal
-1. Run simulator and select '8' in the main menu to configure the device ID
 
-![](./doc/image/setDevID.png)
+###  Register Device
+1. Run simulator and select '8' in the menu to configure the device ID
 
-2. Select '7' in the main menu to put the simulator into a wait-and-add state. Add devices on the protal page (https://web-pebble-frontend.vercel.app/) at the same time 
-  
-![](./doc/image/addDev.png)
+2. Select '7' in the menu to put the simulator into a waiting state. 
 
-Add a device to the portal:
+3. Add devices on the protal page (https://portal.iott.network/) at the same time 
 
 ![](./doc/image/addDevPortal.png)
 
-3. The device was added successfully
+4. Make sure the device is added successfully.
 
 ![](./doc/image/addDevOk.png)
 
@@ -68,7 +69,7 @@ The device has been added to portal
 
 ![](./doc/image/addDevPortalOk.png)
 
-### Upload data to portal
+### Produce and Upload Data
 1. Generate simulated data 
    
 Select '3' in the main menu to generate simulated data
@@ -83,7 +84,6 @@ Select '3' in the main menu to generate simulated data
    
 ![](./doc/image/dataPortal.png)
 
-It has been successfully tested on Ubuntu 16.04.6 and MacOS 10.14
 
 ## Files
 `simulator.sh` - The simulator
