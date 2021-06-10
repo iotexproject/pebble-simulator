@@ -8,7 +8,7 @@ VER="v1.04"
 default_mode="random"
 
 # default mqtt publish topic
-device_id="352656103380963"
+device_id="$(openssl rand -hex 100 | tr -dc '[:digit:]'|head -c15)"
 default_pubtopic="device/${device_id}/data"
 mqttMode="publish"
 
@@ -500,7 +500,7 @@ PebbleBlockchain()
 PebbleRegistration()
 { 
     printf '\033\143'
-    echo "Pebble id : $device_id"
+    echo "Device IMEI : $device_id"
     echo ""
     echo "Add a device on the following page:  https://portal.iott.network/" 
     echo ""
