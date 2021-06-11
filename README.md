@@ -9,16 +9,29 @@ It has been successfully tested on Ubuntu 16.04.6 and MacOS 10.14
 - openssl 1.0.2g or later
 - mosquitto-clients
 - libcurl
+- python3 / secp256k1
+- pkg-config
+- autoconf
+- libtool
+- automake
 
 ### Ubuntu
 `apt-get install  openssl`
 
 `apt-get install  mosquitto-clients`
 
+`apt-get install  python3  pkg-config autoconf libtool automake`
+
+`pip3 install secp256k1`
+
 ### MacOS
 `brew install openssl`
 
 `brew install mosquitto`
+
+`brew install python3 pkg-config autoconf libtool automake`
+
+`pip3 install secp256k1`
 ## Run
 `./simulator.sh`
 
@@ -92,7 +105,9 @@ Select '3' in the main menu to generate simulated data
 
 `pebble.dat` - The data points produced according to the spec
 
-`tracker01.key` - ECDSA key used by the simulator to sign data
+`privKey` - ECDSA private key used by the simulator to sign
+
+`pubKey`  - ECDSA publickey key used by the simulator to verify signature
 
 `cert.pem` - the cert for communicating via MQTT, which can be downloaded while creating `AWS IoT things`
 
