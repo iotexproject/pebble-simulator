@@ -359,15 +359,38 @@ GenerateFile()
     if [ -a $genFile ];then
     	rm $genFile
     fi
-
+    str=$(python3 -m secp256k1 privkey -p)
+    privKey=$(echo $str|awk '{print $1}')
+    pubKey=$(echo $str|awk '{print $4}')
+    echo $privKey > privKey
+    echo $pubKey > pubKey
     for((integer = 1; integer <= $CountPkg; integer++))
     do
 	NextData
        objMessage="\"message\":{\"snr\":$SNR,\"vbat\":$VBAT,\"latitude\":${GPS[0]},\"longitude\":${GPS[1]},\"gasResistance\":${ENV[0]},\"temperature\":${ENV[1]},\"pressure\":${ENV[2]},\"humidity\":${ENV[3]},\"light\":$LIGHT,\"temperature2\":$temp,\"gyroscope\":[${gyr[0]},${gyr[1]},${gyr[2]}],\"accelerometer\":[${accel[0]},${accel[1]},${accel[2]}],\"timestamp\":\"$timestp\",\"random\":\"$randomHex\"}"
        sign_msg="{$objMessage}"
-       ecc_str=$(echo $sign_msg |openssl dgst -sha256 -sign tracker01.key |hexdump -e '16/1 "%02X"')
-       sign_r=$(echo ${ecc_str:8:64})
-       sign_s=$(echo ${ecc_str:76:64})
+       #ecc_str=$(echo $sign_msg |openssl dgst -sha256 -sign  tracker01.pem |hexdump -e '2/1 "%02X"')
+       #echo $ecc_str
+       #len=${ecc_str:2:2}
+       #len1=${ecc_str:6:2}
+       #[ "$len1" == "20" ] && { start1=8; len2_pos=74;}
+       #[ "$len1" == "21" ] && { start1=10; len2_pos=76;}        
+       #echo "len2_pos:$len2_pos"
+       #len2=${ecc_str:$len2_pos:2}
+       #[ "$len2" == "20" ] && [ "$len1" == "20" ] && { start2=76; }
+       #[ "$len2" == "20" ] && [ "$len1" == "21" ] && { start2=78; }
+       #[ "$len2" == "21" ] && [ "$len1" == "20" ] && { start2=78; }
+       #[ "$len2" == "21" ] && [ "$len1" == "21" ] && { start2=80; }
+       #echo "len1:$len1"
+       #echo "len2:$len2"
+       #echo "start1:$start1"
+       #echo "start2:$start2"
+       sign_ret=$(python3 -m secp256k1 signrec -k ${privKey} -m $sign_msg)
+       ecc_str=$(echo $sign_ret | awk '{print $1}')
+       #sign_r=$(echo ${ecc_str:$start1:64})
+       #sign_s=$(echo ${ecc_str:$start2:64})
+       sign_r=$(echo ${ecc_str:0:64})
+       sign_s=$(echo ${ecc_str:64:64})
        echo "{$objMessage,\"signature\":{\"r\":\"$sign_r\",\"s\":\"$sign_s\"}}" >> $genFile
     done
 
