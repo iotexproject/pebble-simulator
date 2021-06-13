@@ -99,7 +99,7 @@ Select '3' in the main menu to generate simulated data
 
 `tracker01.key` - ECC private key for data signing
 
-`privKey` - ECDSA private key used by the simulator to sign
+`privKey` - ECDSA private key in hex-string format used by the simulator to sign
 
 `pubKey_compressed`  - ECC public key in compressed format
 
