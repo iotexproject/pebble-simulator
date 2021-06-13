@@ -46,8 +46,8 @@ GetResponse()
     elif [ $OSTYPE == "Darwin" ];then
         ./pebble_contract_darwin $1 $2
     else
-        echo "un os type"
-        return
+        echo "Unsupported os type!"
+        exit
     fi    
 }
 
