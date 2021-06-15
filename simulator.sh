@@ -546,7 +546,7 @@ update_key_pair()
     openssl ecparam -name secp256k1 -genkey -out  tracker01.key 2>&1 1>/dev/null
     key_str=$(openssl ec -in tracker01.key -text -noout)
     priv_key=$(echo $key_str|awk '{print $5$6$7 }'|sed 's/://g') 
-    pub_key=$(echo $key_str|awk '{print $9$10$11$12}'|sed 's/://g') 
+    pub_key=$(echo $key_str|awk '{print $9$10$11$12$13}'|sed 's/://g') 
     echo $priv_key > privKey
     echo $pub_key  > pubKey_uncompressed
     key_str=$(openssl ec -in tracker01.key -pubout  -text -noout -conv_form compressed)
