@@ -12,19 +12,19 @@ The script has been successfully tested on Ubuntu 16.04.6 and MacOS 10.14
 ### Ubuntu
 Run the following commands in a Linux shell 
 ```
-apt-get install  openssl
-apt-get install  mosquitto-clients
+$ apt-get install  openssl
+$ apt-get install  mosquitto-clients
 ```
 
 ### MacOS
 ```
-brew install openssl
-brew install mosquitto
+$ brew install openssl
+$ brew install mosquitto
 ```
 ## Run the simulator
 
 ```
-./simulator.sh
+$ ./simulator.sh
 
 ========>> PEBBLE SIMULATOR <<========
  1.  Config Sensors
@@ -69,3 +69,12 @@ By default, the scirpt will generate 30 data points using random values for each
 }
 ```
 
+```
+$ cat pebble.dat
+
+{"message":{"snr":3,"vbat":0.96024,"latitude":1608.27036,"longitude":15147.14661,"gasResistance":3451,"temperature":39.17099,"pressure":1084.90033,"humidity":60.16272,"light":1306.92780,"temperature2":19.17529,"gyroscope":[11,-2638,-13],"accelerometer":[2361,2638,2915],"timestamp":"5000","random":"3f7e6c358150c30c"},"signature":{"r":"5d1557f43c6aa781e82043f73f84cca9cd06e5eba06b530a9d83d28e89889f38","s":"1a79e43825a1f5e48706d8e4eb359c283c8f31fa4f9b37f2200494f8a137a2e4"}}
+{"message":{"snr":88,"vbat":2.59143,"latitude":4628.10452,"longitude":2906.98260,"gasResistance":6099,"temperature":65.62442,"pressure":1746.80295,"humidity":93.23846,"light":1968.83044,"temperature2":45.63116,"gyroscope":[-1,2,-4570],"accelerometer":[4016,4293,4570],"timestamp":"10000","random":"0bfc6c9b3363ec67"},"signature":{"r":"d46facce007012e22dbcf47b0e54d8bb07a1dc25d5ad49bf7da62a96157d8741","s":"08b65972c616ee6c0cf6f5d501cab49995f4d32b70a908c1d7cac5254ffa63fc"}}
+...
+{"message":{"snr":86,"vbat":2.48517,"latitude":157.96259,"longitude":12137.83881,"gasResistance":2153,"temperature":26.61856,"pressure":760.86353,"humidity":44.36566,"light":982.82999,"temperature2":6.62286,"gyroscope":[9,-1826,-10],"accelerometer":[1549,1826,2104],"timestamp":"25000","random":"6b95e9e7a4bcd119"},"signature":{"r":"8bec9b753ae7743f7c6ac9cb51baa5c70f12e9f511c96216975657002b809768","s":"4dccd4be89388ba70ef3b498a8c56e1acfad859f73526591b8988a8536d8d70e"}}
+```
+brew install mosquitto
