@@ -547,7 +547,7 @@ update_key_pair()
     key_str=$(openssl ec -in tracker01.key -text -noout)
     priv_key=$(echo $key_str|awk '{print $5$6$7 }'|sed 's/://g') 
     pub_key=$(echo $key_str|awk '{print $9$10$11$12$13}'|sed 's/://g') 
-    echo $priv_key > privKey
+    echo ${priv_key:0-64} > privKey
     echo $pub_key  > pubKey_uncompressed
     key_str=$(openssl ec -in tracker01.key -pubout  -text -noout -conv_form compressed)
     pub_key=$(echo $key_str|awk '{print $9$10$11}'|sed 's/://g') 
