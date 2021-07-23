@@ -470,7 +470,7 @@ SetPebbleId()
         printf '\033\143'
 	    read -p "Input 15 digits or enter to use the default value : " key
         [ ${#key} != 15 ] && [ ${#key} != 0 ] && echo "" && echo "The input is incorrect, please re-enter" && sleep 2 && continue
-        [ ${#key} != 0  ] && device_id="123456$key" 
+        [ ${#key} != 0  ] && device_id="$key" 
         kill  $process_heartbeat
         upload_config
 
@@ -576,8 +576,8 @@ PebbleRegistration()
         ./DataEncode_Darwin "$sign_msg" "$TYPE_REG_CONFIRM" |openssl dgst -sha256 -binary |openssl pkeyutl -sign -inkey tracker01.key |./PackEncode_Darwin $sign_msg $TYPE_REG_CONFIRM |mosquitto_pub -t  "device/${device_id}/confirm" -s  -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
     fi 
     echo ""
-    echo  "Succesfully published!"
-    echo  "Waiting  for backend !"
+    echo  "Succesfully responded!"
+    echo  "Waiting for backend !"
     echo ""       
 
 
