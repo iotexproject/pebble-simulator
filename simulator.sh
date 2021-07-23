@@ -76,7 +76,7 @@ trap 'ExitClrAll;exit' 2
 function ExitClrAll () {
     process_mosquot=$(ps -ef | grep  mosquitto_sub | grep -v grep | awk '{print $2}')
     process_mosquotpub=$(ps -ef | grep  mosquitto_pub | grep -v grep | awk '{print $2}')
-    kill  ${process_heartbeat} ${process_mosquot} ${process_mosquotpub} >/dev/null 2>&1
+    kill ${process_ota} ${process_heartbeat} ${process_mosquot} ${process_mosquotpub} >/dev/null 2>&1
     
 }
 
@@ -471,11 +471,11 @@ SetPebbleId()
 	    read -p "Input 9 digits or enter to use the default value : " key
         [ ${#key} != 9 ] && [ ${#key} != 0 ] && echo "" && echo "The input is incorrect, please re-enter" && sleep 2 && continue
         [ ${#key} != 0  ] && device_id="123456$key" 
-        #kill  $process_heartbeat
+        kill  $process_heartbeat
         upload_config
 
-        #./heartbeat.sh ${device_id} $timestp &
-        #process_heartbeat=$!        
+        ./heartbeat.sh ${device_id} $timestp &
+        process_heartbeat=$!        
         break
     done 
 }
@@ -757,8 +757,8 @@ main()
 envCheck
 os_detect
 upload_config
-#./ota_update.sh &
-#process_ota=$!
+./ota_update.sh &
+process_ota=$!
 ./heartbeat.sh ${device_id} $timestp &
 process_heartbeat=$!
 main
