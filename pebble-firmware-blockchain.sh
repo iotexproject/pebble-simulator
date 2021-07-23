@@ -4,8 +4,8 @@
 RSA_PRIVATE_KEY_FILE="$(pwd)/rsa_private_key.pem"
 RSA_PUBLIC_KEY_FILE="$(pwd)/rsa_public_key.pem"
 
+. ./utils.sh
 
-OSTYPE="Linux"
 RSAInit()
 {
     # generate RSA private key
@@ -18,18 +18,6 @@ RSAInit()
     if [ ! -f "$RSA_PUBLIC_KEY_FILE" ];then
         openssl rsa -in rsa_private_key.pem -pubout -out rsa_public_key.pem
     fi 
-    # Mac 
-    if [ "$(uname)" == "Darwin" ];then           
-        OSTYPE="Darwin"
-        echo "Darwin detected"
-    # GNU/Linux
-    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ];then  
-        OSTYPE="Linux"
-        echo "Linux detected"
-    else
-        OSTYPE="unknowtype"
-        echo "unknow os"
-    fi
 }
 
 #hexdump -e '16/1 "%02X"' hello.en | xxd -r -p| openssl rsautl -decrypt -inkey rsa_private_key.pem

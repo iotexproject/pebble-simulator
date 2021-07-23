@@ -22,28 +22,45 @@ $ brew install openssl
 $ brew install mosquitto
 ```
 ## Run the simulator
-
 ```
 $ ./simulator.sh
 
 ========>> PEBBLE SIMULATOR <<========
+
  1.  Config Sensors
+
  2.  Set Number of Data Points (Current: 30)
+
  3.  Generate Simulated Data
+
  4.  Publish to IoTT Portal
+
  5.  Publish to IoTeX Blockchain
+
  6.  Device Registration
- 7.  Set Device IMEI (Current: 498090403799636)
+
+ 7.  Set Device IMEI (Current: 123456655945820)
+
  8.  Update ECC key pair
 
  9.  Exit
 
-
 Select:
-
 ```
+## How to registration
+1. Run the simulator
+```
+    ./simulator.sh
+```
+
+2. Select menu '6' 
+
+3. Add a device on the page:  https://portal.iott.network/"
+    
+    When you get the prompt "Device registration complete!", it means that the device has been registered
+
 ## Generate the data points
-By default, the scirpt will generate 30 data points using random values for each of the 8 sensors available on Pebble Tracker, along with the elliptic curve signature for each data point. You can change the number of generated data points by selecting the menu item #2. Finally select the menu item #3 to generate and save the data points to pebble.dat. Each data point is saved in JSON format:
+You need to register the device before generating data.By default, the scirpt will generate 30 data points using random values for each of the 8 sensors available on Pebble Tracker, along with the elliptic curve signature for each data point. You can change the number of generated data points by selecting the menu item #2. Finally select the menu item #3 to generate and save the data points to pebble.dat. Each data point is saved in JSON format:
 ```json
 {
     "message": {
