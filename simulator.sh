@@ -468,8 +468,8 @@ SetPebbleId()
     while true
     do
         printf '\033\143'
-	    read -p "Input 9 digits or enter to use the default value : " key
-        [ ${#key} != 9 ] && [ ${#key} != 0 ] && echo "" && echo "The input is incorrect, please re-enter" && sleep 2 && continue
+	    read -p "Input 15 digits or enter to use the default value : " key
+        [ ${#key} != 15 ] && [ ${#key} != 0 ] && echo "" && echo "The input is incorrect, please re-enter" && sleep 2 && continue
         [ ${#key} != 0  ] && device_id="123456$key" 
         kill  $process_heartbeat
         upload_config
