@@ -94,4 +94,9 @@ $ cat pebble.dat
 ...
 {"message":{"snr":86,"vbat":2.48517,"latitude":157.96259,"longitude":12137.83881,"gasResistance":2153,"temperature":26.61856,"pressure":760.86353,"humidity":44.36566,"light":982.82999,"temperature2":6.62286,"gyroscope":[9,-1826,-10],"accelerometer":[1549,1826,2104],"timestamp":"25000","random":"6b95e9e7a4bcd119"},"signature":{"r":"8bec9b753ae7743f7c6ac9cb51baa5c70f12e9f511c96216975657002b809768","s":"4dccd4be89388ba70ef3b498a8c56e1acfad859f73526591b8988a8536d8d70e"}}
 ```
-brew install mosquitto
+## How to get the private key
+```
+$cat privKey
+
+```
+
