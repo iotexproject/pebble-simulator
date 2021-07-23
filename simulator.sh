@@ -703,7 +703,7 @@ main()
         echo ""
         echo " 7.  Set Device IMEI (Current: ${device_id})"
         echo ""     
-        echo " 8.  Update ECC key pair"
+        echo " 8.  Update ECC key pair (Current Private key : $(cat privKey) )"
         echo ""   
         echo " 9.  Exit"
         echo ""
