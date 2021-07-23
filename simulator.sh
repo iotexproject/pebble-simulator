@@ -536,7 +536,7 @@ PebbleRegistration()
     printf '\033\143'
     echo "Device IMEI : $device_id"
     echo ""
-    echo "Add a device on the following page:  https://portal.iott.network/" 
+    echo "Add a device on the following page:  https://app.iott.network/" 
     echo ""
     #regRq=$(mosquitto_sub  -t  "device/${device_id}/action/add" -h $MQTT_BROKER_HOST -C 1 --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT)
     while true
