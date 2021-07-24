@@ -9,7 +9,7 @@ VER="v1.04"
 default_mode="random"
 
 # default mqtt publish topic
-device_id="123456$(openssl rand -hex 100 | tr -dc '[:digit:]'|head -c9)"
+device_id="$(openssl rand -hex 100 | tr -dc '[:digit:]'|head -c15)"
 default_pubtopic="device/${device_id}/data"
 mqttMode="publish"
 

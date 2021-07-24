@@ -3,7 +3,7 @@
 #######################
 
 if [[ $# -lt 1 ]]; then
-    echo "Usage: $ ec_sign_hex <input-hex> <priv-key-hex>"
+    echo "Usage: $ ec_sign_hex  <priv-key-hex>"
     exit 1
 fi
 
@@ -19,4 +19,5 @@ echo "-----END EC PARAMETERS-----" >> tracker01.key
 echo "-----BEGIN EC PRIVATE KEY-----" >> tracker01.key
 echo $asnFormatKey | xxd -r -p | base64 | fold -w 64 >> tracker01.key
 echo "-----END EC PRIVATE KEY-----" >> tracker01.key
+echo $privKeyHex > privKey
 
