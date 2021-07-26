@@ -295,11 +295,11 @@ NextData()
       fi
       # Light
       if [ $light_mode == "random" ];then
-         LIGHT=$( RandomFloat 1 5 2000 )
+         LIGHT=$( RandomFloat 1 2 2000 )
      elif [ $light_mode == "linear" ];then
-         LIGHT=$(echo $LIGHT+50.10001|bc -l)
+         LIGHT=$(echo $LIGHT+50.10|bc -l)
          if [ $LIGHT > 2000 ];then
-             LIGHT=10.14545
+             LIGHT=10.14
          fi
      fi
      # gyroscope
@@ -471,6 +471,7 @@ SetPebbleId()
 	    read -p "Input 15 digits or enter to use the default value : " key
         [ ${#key} != 15 ] && [ ${#key} != 0 ] && echo "" && echo "The input is incorrect, please re-enter" && sleep 2 && continue
         [ ${#key} != 0  ] && device_id="$key" 
+        echo $device_id > device_imei
         kill  $process_heartbeat
         upload_config
 
@@ -602,14 +603,14 @@ PebbleRegistration()
     read -n 1 key    
     return 1
 }
-update_key_pair()
+gen_key_pair()
 {
     printf '\033\143'
     echo "The original key pair will be deleted. Are you sure to generate a new key pair (N/Y)?"
     echo ""   
     read -n 1 key
     if [ "$key" != "Y" ];then
-        return
+        return 0
     fi
     echo ""
     if [ -a "tracker01.key" ];then
@@ -633,6 +634,49 @@ update_key_pair()
     echo ""
     read -n 1 key    
     return 1    
+}
+InputPrikey()
+{
+    printf '\033\143'
+    read -p "Input new priavte key: " key 
+    privKeyHex=$key
+    ## Create .pem and .pub files
+    #############################
+    pubKeyHex="$(openssl ec -inform DER -text -noout -in <(cat <(echo -n "302e0201010420") <(echo -n "${privKeyHex}") <(echo -n "a00706052b8104000a") | xxd -r -p) 2>/dev/null | tail -6 | head -5 | sed 's/[ :]//g' | tr -d '\n')"
+    asnFormatKey="30740201010420${privKeyHex}a00706052b8104000aa144034200${pubKeyHex}"
+    echo "-----BEGIN EC PARAMETERS-----" > tracker01.key
+    echo 06052b8104000a | xxd -r -p |base64 >> tracker01.key
+    echo "-----END EC PARAMETERS-----" >> tracker01.key
+    echo "-----BEGIN EC PRIVATE KEY-----" >> tracker01.key
+    echo $asnFormatKey | xxd -r -p | base64 | fold -w 64 >> tracker01.key
+    echo "-----END EC PRIVATE KEY-----" >> tracker01.key
+    echo $privKeyHex > privKey    
+}
+
+UpdatePrivkey()
+{
+    while true
+    do
+        printf '\033\143'       
+        echo "" 
+        echo " 1.  Enter private key"
+        echo ""
+        echo " 2.  Generate new private key"
+        echo ""   
+        echo " 3.  Return to the main menu"
+        read -n 1 key
+        if [[ $key == "1" ]];then
+            InputPrikey
+        elif [[ $key == "2" ]] ;then
+            gen_key_pair
+            if [ $? == "1" ] ;then
+                break
+            fi                                                
+        else
+            echo ""
+            break
+        fi
+    done    
 }
 
 upload_config()
@@ -673,7 +717,12 @@ envCheck()
         echo "Openssl is not installed, please install the openssl package"
         echo ""
         exit
-    fi    
+    fi
+    if [[ -s device_imei ]];then
+        device_id=$(cat device_imei)
+    else
+        echo $device_id > device_imei
+    fi
 }
 
 main()
@@ -694,18 +743,14 @@ main()
         echo " 3.  Generate Simulated Data"
         echo ""
         echo " 4.  Publish to IoTT Portal"
-        #echo ""
-        #echo " 5.  Publish to Trypebble.io"
         echo ""
-        echo " 5.  Publish to IoTeX Blockchain"
+        echo " 5.  Device Registration"
         echo ""
-        echo " 6.  Device Registration"
-        echo ""
-        echo " 7.  Set Device IMEI (Current: ${device_id})"
+        echo " 6.  Set Device IMEI (Current: $(cat device_imei))"
         echo ""     
-        echo " 8.  Update ECC key pair (Current Private key : $(cat privKey) )"
+        echo " 7.  Config device privkey (Current: $(cat privKey))"
         echo ""   
-        echo " 9.  Exit"
+        echo " 8.  Exit"
         echo ""
         echo "Select:"
         read -n 1 key
@@ -725,28 +770,12 @@ main()
         elif [[ $key == "4" ]];then
             echo ""
             AWSIOTUpload
-            if [ $? == "0" ] ;then
-                break
-            fi
-        #elif [[ $key == "5" ]];then
-        #    TrypebbleUpload
-        #    if [ $? == "0" ] ;then
-        #      break
-        #    fi
         elif [[ $key == "5" ]];then
-            PebbleBlockchain
-            if [ $? == "0" ] ;then
-                break
-            fi  
+            PebbleRegistration   
         elif [[ $key == "6" ]];then
-            PebbleRegistration
-            if [ $? == "0" ] ;then
-                break
-            fi   
-        elif [[ $key == "7" ]];then
             SetPebbleId  
-        elif [[ $key == "8" ]];then
-            update_key_pair                                            
+        elif [[ $key == "7" ]];then
+            UpdatePrivkey                                            
         else
             echo ""
             break
