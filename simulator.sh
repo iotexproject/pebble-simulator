@@ -639,6 +639,9 @@ InputPrikey()
 {
     printf '\033\143'
     read -p "Input new priavte key: " key 
+    if [ ${#key} == 0 ];then
+        return
+    fi
     privKeyHex=$key
     ## Create .pem and .pub files
     #############################
