@@ -53,7 +53,7 @@ Select:
     ./simulator.sh
 ```
 
-2. Select menu '6' 
+2. Select menu '5' 
 
 3. Add a device on the page:  https://portal.iott.network/"
     
@@ -94,9 +94,17 @@ $ cat pebble.dat
 ...
 {"message":{"snr":86,"vbat":2.48517,"latitude":157.96259,"longitude":12137.83881,"gasResistance":2153,"temperature":26.61856,"pressure":760.86353,"humidity":44.36566,"light":982.82999,"temperature2":6.62286,"gyroscope":[9,-1826,-10],"accelerometer":[1549,1826,2104],"timestamp":"25000","random":"6b95e9e7a4bcd119"},"signature":{"r":"8bec9b753ae7743f7c6ac9cb51baa5c70f12e9f511c96216975657002b809768","s":"4dccd4be89388ba70ef3b498a8c56e1acfad859f73526591b8988a8536d8d70e"}}
 ```
-## How to get the private key
+## How to config private key
+1. Run the simulator.
 ```
-$cat privKey
+./simulator.sh
+```
 
-```
+1. Select menu '7'. 
+   
+2. Select menu '1' if you enter a new private key. Or the simulator automatically generates a private key, select menu '2'.
+   
+3. Now return to the main menu, you can see the configured private key at the end of menu '7'.
+
+
 
