@@ -99,12 +99,11 @@ $ cat pebble.dat
 ```
 ./simulator.sh
 ```
-
-1. Select menu '7'. 
+2. Select menu '7'. 
    
-2. Select menu '1' if you enter a new private key. Or the simulator automatically generates a private key, select menu '2'.
+3. Select menu '1' if you enter a new private key. Or the simulator automatically generates a private key, select menu '2'.
    
-3. Now return to the main menu, you can see the configured private key at the end of menu '7'.
+4. Now return to the main menu, you can see the configured private key at the end of menu '7'.
 
 
 
