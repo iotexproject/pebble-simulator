@@ -27,6 +27,7 @@ $ ./simulator.sh
 
 ========>> PEBBLE SIMULATOR <<========
 
+
  1.  Config Sensors
 
  2.  Set Number of Data Points (Current: 30)
@@ -35,17 +36,16 @@ $ ./simulator.sh
 
  4.  Publish to IoTT Portal
 
- 5.  Publish to IoTeX Blockchain
+ 5.  Device Registration
 
- 6.  Device Registration
+ 6.  Set Device IMEI (Current: 103381234567402)
 
- 7.  Set Device IMEI (Current: 123456655945820)
+ 7.  Config device privkey (Current: 0510802dad279d7451c63ab28a44915ffc1fa61db98c276a16f8b0f1e87ec1af)
 
- 8.  Update ECC key pair
-
- 9.  Exit
+ 8.  Exit
 
 Select:
+
 ```
 ## How to registration
 1. Run the simulator
@@ -105,5 +105,7 @@ $ cat pebble.dat
    
 4. Now return to the main menu, you can see the configured private key at the end of menu '7'.
 
+## Publish all data
+Since the data has a time stamp, it is necessary to select menu "3" to generate new data before publishing the data.
 
 
