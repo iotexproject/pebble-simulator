@@ -251,14 +251,20 @@ NextData()
      fi
      # GPS
      if [ $gps_mode == "random" ];then
-         gps_m=$( RandomFloat 1 5 60 )
-         gps_g=$( RandomInt 0 90 )
-         let gps_g=gps_g*100
-         GPS[0]=$(echo $gps_g+$gps_m |bc -l)
-         gps_m=$( RandomFloat 1 5 60 )
-	 gps_g=$( RandomInt 0 180 )
-	 let gps_g=gps_g*100
-         GPS[1]=$(echo $gps_g+$gps_m |bc -l)
+        gps_g=$[RANDOM%2]
+        let gps_g=gps_g*-1-gps_g+1
+        gps_m=$( RandomFloat 1 7 90 )
+        #gps_g=$( RandomInt 0 90 )
+        #let gps_g=gps_g*100
+        #GPS[0]=$(echo $gps_g+$gps_m |bc -l)
+        GPS[0]=$(echo $gps_g*$gps_m |bc -l)
+        gps_g=$[RANDOM%2]
+        let gps_g=gps_g*-1-gps_g+1        
+        gps_m=$( RandomFloat 1 7 180 )     
+        #gps_g=$( RandomInt 0 180 )
+        #let gps_g=gps_g*100
+        #GPS[1]=$(echo $gps_g+$gps_m |bc -l)
+        GPS[1]=$(echo $gps_g*$gps_m |bc -l)
      elif [ $snr_mode == "linear" ];then
          GPS[0] = $(echo ${GPS[0]} + 2.1000|bc -l)
          GPS[1] = $(echo ${GPS[1]} + 2.1000|bc -l)
