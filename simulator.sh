@@ -82,8 +82,13 @@ function ExitClrAll () {
 
 getTime()
 {
-	current=`date "+%Y-%m-%d %H:%M:%S"`
-	timeStamp=`date -d "$current" +%s`
+
+    if [ $OSTYPE == "Linux" ];then
+        current=`date "+%Y-%m-%d %H:%M:%S"`
+        timeStamp=`date -d "$current" +%s`        
+    elif [ $OSTYPE == "Darwin" ];then
+        timeStamp=`date +%s`   
+    fi    
 	# ms
 	#currentTimeStamp=$(( timeStamp*1000+`date "+%N"`/1000000 ))
 	#echo $currentTimeStamp
@@ -352,25 +357,29 @@ NextData()
              accel[2]=500
          fi
       fi
-      #temperature
-      if [ $temp_mode == "random" ];then
-         temp=$( RandomFloat 1 5 80 )
-     elif [ $temp_mode == "linear" ];then
-         temp=$(echo $temp+2.10001|bc -l)
-         if [ $temp > 80 ];then
-             temp=10.14545
-         fi
-     fi
-      current=$(date "+%Y-%m-%d %H:%M:%S")
-      timeStamp=$(date -d "$current" +%s)     
-      timestp=$timeStamp
-      randomHex=$(openssl rand -hex 8)
+    #temperature
+    if [ $temp_mode == "random" ];then
+        temp=$( RandomFloat 1 5 80 )
+    elif [ $temp_mode == "linear" ];then
+        temp=$(echo $temp+2.10001|bc -l)
+        if [ $temp > 80 ];then
+            temp=10.14545
+        fi
+    fi
+    if [ $OSTYPE == "Linux" ];then
+        current=`date "+%Y-%m-%d %H:%M:%S"`
+        timeStamp=`date -d "$current" +%s`        
+    elif [ $OSTYPE == "Darwin" ];then
+        timeStamp=`date +%s`   
+    fi             
+    timestp=$timeStamp
+    randomHex=$(openssl rand -hex 8)
 }
 
 GenerateFile()
 {
     if [ -a $genFile ];then
-    	rm $genFile
+        rm $genFile
     fi
     privKey=$(cat privKey)
     for((integer = 1; integer <= $CountPkg; integer++))
@@ -690,9 +699,12 @@ UpdatePrivkey()
 
 upload_config()
 {
-    current=$(date "+%Y-%m-%d %H:%M:%S")
-    timeStamp=$(date -d "$current" +%s)     
-
+    if [ $OSTYPE == "Linux" ];then
+        current=`date "+%Y-%m-%d %H:%M:%S"`
+        timeStamp=`date -d "$current" +%s`        
+    elif [ $OSTYPE == "Darwin" ];then
+        timeStamp=`date +%s`   
+    fi 
     timestp=$timeStamp    
     confStr="{\"message\":{\"bulkUpload\":\"0\",\"dataChannel\":\"8183\",\"uploadPeriod\":\"10\",\"bulkUploadSamplingCnt\":\"60\",\"bulkUploadSamplingFreq\":\"10\",\"beep\":\"1000\",\"firmware\":\"pebbleGo V1.0.0\",\"timestamp\":\"$timestp\"}}"
     #mosquitto_pub -t  "device/${device_id}/config" -m "${confStr}" -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT 
