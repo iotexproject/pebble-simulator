@@ -1,11 +1,6 @@
 #!/bin/bash
 
 
-# config  mqtt broker host
-MQTT_BROKER_HOST="a11homvea4zo8t-ats.iot.us-east-1.amazonaws.com"
-MQTT_BROKER_PORT=8883
-
-
 
 defDeviceID="Not Configured"
 
@@ -18,7 +13,9 @@ devUpPeriod=10
 devSampleN=30
 devUpInterval=10
 
-
+MQTT_CERT=$1
+MQTT_KEY=$2
+MQTT_BROKER_HOST=$3
 
 confDevID()
 {
@@ -114,7 +111,7 @@ pubData()
     echo "}"
 
     objMessage="{\"bulk_upload\":\"$devWorkmode\",\"data_channel\":\"$hexToDecimal\",\"upload_period\":\"$devUpPeriod\",\"bulk_upload_sampling_cnt\":\"$devSampleN\",\"bulk_upload_sampling_freq\":\"$devUpInterval\"}"
-    mosquitto_pub -t  "topic/config/$defDeviceID" -m $objMessage -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+    mosquitto_pub -t  "topic/config/$defDeviceID" -m $objMessage -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT
 
     echo "Publish complete"
     echo "Press any key to return"

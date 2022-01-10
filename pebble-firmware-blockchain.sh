@@ -4,7 +4,6 @@
 RSA_PRIVATE_KEY_FILE="$(pwd)/rsa_private_key.pem"
 RSA_PUBLIC_KEY_FILE="$(pwd)/rsa_public_key.pem"
 
-. ./utils.sh
 
 RSAInit()
 {
@@ -29,6 +28,8 @@ RSADecrypto()
 # $1 : device id , $2 : pebble contract
 GetResponse()
 {
+    OSTYPE = $3
+
     if [ $OSTYPE == "Linux" ];then
         ./pebble_contract_linux  $1 $2
     elif [ $OSTYPE == "Darwin" ];then

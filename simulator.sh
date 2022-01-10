@@ -13,11 +13,6 @@ device_id="$(openssl rand -hex 100 | tr -dc '[:digit:]'|head -c15)"
 default_pubtopic="device/${device_id}/data"
 mqttMode="publish"
 
-# config  mqtt broker host (tls)
-#MQTT_BROKER_HOST="a11homvea4zo8t-ats.iot.us-east-1.amazonaws.com"
-MQTT_BROKER_HOST="a11homvea4zo8t-ats.iot.ap-east-1.amazonaws.com"
-MQTT_BROKER_PORT=8883
-
 # config  mqtt broker host (no tls)
 MQTT_BROKER_HOST_TEST="trypebble.io"
 MQTT_BROKER_PORT_TEST=1884
@@ -427,12 +422,12 @@ AWSIOTUpload()
         #tail_msg=$(echo $oneline | awk -F'},' '{print ","$2}')
         #hexStr=$(echo $raw_msg|hexdump -e '16/1 "%02X"'|cut -d' ' -f1)
         #objMsg=${head_msg}\"${hexStr}\"${tail_msg}
-        #mosquitto_pub -t  $default_pubtopic -m $objMsg -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
-        #mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+        #mosquitto_pub -t  $default_pubtopic -m $objMsg -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT
+        #mosquitto_pub -t  $default_pubtopic -m $oneline -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT
         if [ $OSTYPE == "Linux" ];then
-            ./DataEncode_Linux "$oneline" "$TYPE_SENSRO_DATA" |openssl dgst -sha256 -binary |openssl pkeyutl -sign -inkey tracker01.key |./PackEncode_Linux "$oneline" "$TYPE_SENSRO_DATA" |mosquitto_pub -t  $default_pubtopic -s  -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+            ./DataEncode_Linux "$oneline" "$TYPE_SENSRO_DATA" |openssl dgst -sha256 -binary |openssl pkeyutl -sign -inkey tracker01.key |./PackEncode_Linux "$oneline" "$TYPE_SENSRO_DATA" |mosquitto_pub -t  $default_pubtopic -s  -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT
         elif [ $OSTYPE == "Darwin" ];then
-            ./DataEncode_Darwin "$oneline" "$TYPE_SENSRO_DATA" |openssl dgst -sha256 -binary |openssl pkeyutl -sign -inkey tracker01.key |./PackEncode_Darwin "$oneline" "$TYPE_SENSRO_DATA" |mosquitto_pub -t  $default_pubtopic -s  -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+            ./DataEncode_Darwin "$oneline" "$TYPE_SENSRO_DATA" |openssl dgst -sha256 -binary |openssl pkeyutl -sign -inkey tracker01.key |./PackEncode_Darwin "$oneline" "$TYPE_SENSRO_DATA" |mosquitto_pub -t  $default_pubtopic -s  -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT
         fi             
         #echo "$index"
         #let index=index+1
@@ -483,15 +478,15 @@ SetPebbleId()
     while true
     do
         printf '\033\143'
-	    read -p "Input 15 digits or enter to use the default value : " key
+        read -p "Input 15 digits or enter to use the default value : " key
         [ ${#key} != 15 ] && [ ${#key} != 0 ] && echo "" && echo "The input is incorrect, please re-enter" && sleep 2 && continue
         [ ${#key} != 0  ] && device_id="$key" 
         echo $device_id > device_imei
         kill  $process_heartbeat
         upload_config
 
-        ./heartbeat.sh ${device_id} $timestp &
-        process_heartbeat=$!        
+        ./heartbeat.sh ${device_id} $timestp $MQTT_CERT $MQTT_KEY $MQTT_BROKER_HOST $MQTT_BROKER_PORT &
+        process_heartbeat=$!
         break
     done 
 }
@@ -511,7 +506,7 @@ PebbleBlockchain()
     endpoint="null"
     while true
     do
-        response=$( GetResponse "$device_id"  "$pebble_contract" )
+        response=$( GetResponse "$device_id"  "$pebble_contract" "$OSTYPE" )
         #echo "response:$response"
         duration=$(echo $response | cut -d';' -f1 | cut -d':' -f2)
         #echo "duration:$duration"
@@ -554,10 +549,10 @@ PebbleRegistration()
     echo ""
     echo "Add a device on the following page:  https://app.iott.network/" 
     echo ""
-    #regRq=$(mosquitto_sub  -t  "device/${device_id}/action/add" -h $MQTT_BROKER_HOST -C 1 --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT)
+    #regRq=$(mosquitto_sub  -t  "device/${device_id}/action/add" -h $MQTT_BROKER_HOST -C 1 --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT)
     while true
     do
-        regRq=$(mosquitto_sub  -t  "backend/${device_id}/status" -h $MQTT_BROKER_HOST -C 1 --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT)        
+        regRq=$(mosquitto_sub  -t  "backend/${device_id}/status" -h $MQTT_BROKER_HOST -C 1 --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT)
         status=$(echo $regRq | awk -F , '{print $1}'| awk -F \: '{print $2}') 
         if [ $status == "1" ];then
             break
@@ -585,11 +580,11 @@ PebbleRegistration()
     #sign_r=$(echo ${ecc_str:8:64})
     #sign_s=$(echo ${ecc_str:76:64})   
     #msg="{$objMessage,\"signature\":{\"r\":\"$sign_r\",\"s\":\"$sign_s\"}}"
-    #mosquitto_pub -t  "device/${device_id}/action/confirm" -m "$msg" -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT 
+    #mosquitto_pub -t  "device/${device_id}/action/confirm" -m "$msg" -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT 
     if [ $OSTYPE == "Linux" ];then
-        ./DataEncode_Linux "$sign_msg" "$TYPE_REG_CONFIRM" |openssl dgst -sha256 -binary |openssl pkeyutl -sign -inkey tracker01.key |./PackEncode_Linux $sign_msg $TYPE_REG_CONFIRM |mosquitto_pub -t  "device/${device_id}/confirm" -s  -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+        ./DataEncode_Linux "$sign_msg" "$TYPE_REG_CONFIRM" |openssl dgst -sha256 -binary |openssl pkeyutl -sign -inkey tracker01.key |./PackEncode_Linux $sign_msg $TYPE_REG_CONFIRM |mosquitto_pub -t  "device/${device_id}/confirm" -s  -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT
     elif [ $OSTYPE == "Darwin" ];then
-        ./DataEncode_Darwin "$sign_msg" "$TYPE_REG_CONFIRM" |openssl dgst -sha256 -binary |openssl pkeyutl -sign -inkey tracker01.key |./PackEncode_Darwin $sign_msg $TYPE_REG_CONFIRM |mosquitto_pub -t  "device/${device_id}/confirm" -s  -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+        ./DataEncode_Darwin "$sign_msg" "$TYPE_REG_CONFIRM" |openssl dgst -sha256 -binary |openssl pkeyutl -sign -inkey tracker01.key |./PackEncode_Darwin $sign_msg $TYPE_REG_CONFIRM |mosquitto_pub -t  "device/${device_id}/confirm" -s  -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT
     fi 
     echo ""
     echo  "Succesfully responded!"
@@ -599,7 +594,7 @@ PebbleRegistration()
 
     while true
     do
-        regRq=$(mosquitto_sub  -t  "backend/${device_id}/status" -h $MQTT_BROKER_HOST -C 1 --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT)
+        regRq=$(mosquitto_sub  -t  "backend/${device_id}/status" -h $MQTT_BROKER_HOST -C 1 --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT)
 
         status=$(echo $regRq | awk -F , '{print $1}'| awk -F \: '{print $2}') 
         if [ $status == "2" ];then
@@ -694,7 +689,44 @@ UpdatePrivkey()
             echo ""
             break
         fi
-    done    
+    done
+}
+NetSelection()
+{
+    while true
+    do
+        printf '\033\143'       
+        echo "" 
+        echo " Please select a network"duihao
+        echo ""
+        if [[ $NETTYPE == "testnet" ]];then
+            echo "✓    1.  Testnet"
+            echo ""
+            echo "     2.  Mainnet"
+            echo ""
+        else
+            echo "     1.  Testnet"
+            echo ""
+            echo "✓    2.  Mainnet"
+            echo ""
+        fi
+        echo "     3.  Return to the main menu"
+        read -n 1 key
+        if [[ $key == "1" ]];then
+            net_selection  "testnet"
+        elif [[ $key == "2" ]] ;then
+            net_selection  "mainnet"
+        else
+            echo ""
+            break
+        fi
+
+        kill  $process_heartbeat 2>/dev/null
+        upload_config 2>/dev/null
+
+        ./heartbeat.sh ${device_id} $timestp $MQTT_CERT $MQTT_KEY $MQTT_BROKER_HOST $MQTT_BROKER_PORT &
+        process_heartbeat=$!
+    done
 }
 
 upload_config()
@@ -707,11 +739,11 @@ upload_config()
     fi 
     timestp=$timeStamp    
     confStr="{\"message\":{\"bulkUpload\":\"0\",\"dataChannel\":\"8183\",\"uploadPeriod\":\"10\",\"bulkUploadSamplingCnt\":\"60\",\"bulkUploadSamplingFreq\":\"10\",\"beep\":\"1000\",\"firmware\":\"pebbleGo V1.0.0\",\"timestamp\":\"$timestp\"}}"
-    #mosquitto_pub -t  "device/${device_id}/config" -m "${confStr}" -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT 
+    #mosquitto_pub -t  "device/${device_id}/config" -m "${confStr}" -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT 
     if [ $OSTYPE == "Linux" ];then
-        ./DataEncode_Linux "$confStr"  "$TYPE_CONF_UP_LOAD"|openssl dgst -sha256 -binary |openssl pkeyutl -sign -inkey tracker01.key |./PackEncode_Linux "$confStr" "$TYPE_CONF_UP_LOAD" |mosquitto_pub -t  "device/${device_id}/data" -s  -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+        ./DataEncode_Linux "$confStr"  "$TYPE_CONF_UP_LOAD"|openssl dgst -sha256 -binary |openssl pkeyutl -sign -inkey tracker01.key |./PackEncode_Linux "$confStr" "$TYPE_CONF_UP_LOAD" |mosquitto_pub -t  "device/${device_id}/data" -s  -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT
     elif [ $OSTYPE == "Darwin" ];then
-        ./DataEncode_Darwin "$confStr"  "$TYPE_CONF_UP_LOAD"|openssl dgst -sha256 -binary |openssl pkeyutl -sign -inkey tracker01.key |./PackEncode_Darwin "$confStr" "$TYPE_CONF_UP_LOAD" |mosquitto_pub -t  "device/${device_id}/data" -s  -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$(pwd)/cert.pem" --key  "$(pwd)/private.pem"  --insecure -p $MQTT_BROKER_PORT
+        ./DataEncode_Darwin "$confStr"  "$TYPE_CONF_UP_LOAD"|openssl dgst -sha256 -binary |openssl pkeyutl -sign -inkey tracker01.key |./PackEncode_Darwin "$confStr" "$TYPE_CONF_UP_LOAD" |mosquitto_pub -t  "device/${device_id}/data" -s  -h $MQTT_BROKER_HOST  --cafile "$(pwd)/AmazonRootCA1.pem" --cert  "$MQTT_CERT" --key  "$MQTT_KEY"  --insecure -p $MQTT_BROKER_PORT
     fi
 }
 isInstalled()
@@ -771,7 +803,9 @@ main()
         echo ""     
         echo " 7.  Config device privkey (Current: $(cat privKey))"
         echo ""   
-        echo " 8.  Exit"
+        echo " 8.  Networks (Current: ${NETTYPE})"
+        echo ""   
+        echo " 9.  Exit"
         echo ""
         echo "Select:"
         read -n 1 key
@@ -796,7 +830,9 @@ main()
         elif [[ $key == "6" ]];then
             SetPebbleId  
         elif [[ $key == "7" ]];then
-            UpdatePrivkey                                            
+            UpdatePrivkey
+        elif [[ $key == 8 ]];then
+            NetSelection
         else
             echo ""
             break
@@ -807,9 +843,9 @@ main()
 envCheck
 os_detect
 upload_config
-./ota_update.sh &
+./ota_update.sh $MQTT_CERT $MQTT_KEY $MQTT_BROKER_HOST $MQTT_BROKER_PORT &
 process_ota=$!
-./heartbeat.sh ${device_id} $timestp &
+./heartbeat.sh ${device_id} $timestp $MQTT_CERT $MQTT_KEY $MQTT_BROKER_HOST $MQTT_BROKER_PORT &
 process_heartbeat=$!
 main
 #clear backends
